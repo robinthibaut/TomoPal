@@ -26,17 +26,14 @@ rho = blocks[:, -1]
 blocks2d_flat = blocks2d.reshape(-1, 2)
 
 test = blocks2d_flat[:4]
-test_sum = [np.sum(t) for t in test]
-depot = int(np.argmin(test_sum))
 
 coords = test
 center = tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), coords), [len(coords)] * 2))
-# hey = sorted(coords, key=lambda coord: (-135 - math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))) % 360)
 
 so = sorted(test,
             key=lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))))
 print(so)
-ff = lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1])))
+
 # columns = ['n', 'x0', 'z0', 'x1', 'z1', 'x2', 'z2', 'x3', 'z3', 'xc', 'zc', 'rho']
 # df = pd.DataFrame(data=blocks, columns=columns)
 
