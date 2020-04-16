@@ -2,7 +2,6 @@ import os
 from os.path import join as jp
 
 import numpy as np
-import pandas as pd
 
 cwd = os.getcwd()
 data_dir = jp(cwd, 'paraview', 'data')
@@ -18,8 +17,12 @@ def read_file(file=None, header=0):
 
 
 blocks = read_file(coord_file)
-columns = ['n', 'x0', 'z0', 'x1', 'z1', 'x2', 'z2', 'x3', 'z3', 'xc', 'zc', 'rho']
-df = pd.DataFrame(data=blocks, columns=columns)
+blocks2d = blocks[:, 1:-3]
+rho = blocks[:, -1]
+
+blocks2d_flat = blocks2d.reshape(-1, 2)
+# columns = ['n', 'x0', 'z0', 'x1', 'z1', 'x2', 'z2', 'x3', 'z3', 'xc', 'zc', 'rho']
+# df = pd.DataFrame(data=blocks, columns=columns)
 
 # # Load hk array
 # hk = np.load(jp(results_dir, 'hk.npy')).reshape(-1)
