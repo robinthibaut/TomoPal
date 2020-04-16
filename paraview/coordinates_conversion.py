@@ -1,0 +1,39 @@
+import os
+from os.path import join as jp
+
+import numpy as np
+import pandas as pd
+
+cwd = os.getcwd()
+data_dir = jp(cwd, 'paraview', 'data')
+coord_file = jp(data_dir, 'coordinates_block_topo.txt')
+ep_file = jp(data_dir, 'end_points.txt')
+
+
+def read_file(file=None, header=0):
+    """Reads space separated dat file"""
+    with open(file, 'r') as fr:
+        op = np.array([list(map(float, i.split())) for i in fr.readlines()[header:]])
+    return op
+
+
+blocks = read_file(coord_file)
+columns = ['n', 'x0', 'z0', 'x1', 'z1', 'x2', 'z2', 'x3', 'z3', 'xc', 'zc', 'rho']
+df = pd.DataFrame(data=blocks, columns=columns)
+
+# # Load hk array
+# hk = np.load(jp(results_dir, 'hk.npy')).reshape(-1)
+# cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(len(blocks))]
+#
+# meshio.write_points_cells(
+#     "foo.vtk",
+#     blocks3d,
+#     cells,
+#     # Optionally provide extra data on points, cells, etc.
+#     # point_data=point_data,
+#     cell_data={'hk': hk},
+#     # field_data=field_data
+#     )
+#
+# diavatly.model_map(blocks2d, hk, log=1)
+# plt.show()
