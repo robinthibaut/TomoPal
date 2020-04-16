@@ -4,13 +4,13 @@ from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import routing_enums_pb2
 
 
-def create_data_model(xy):
+def create_data_model(xy, depot):
     """Stores the data for the problem."""
     data = {}
     # Locations in block units
     data['locations'] = xy
     data['num_vehicles'] = 1
-    data['depot'] = 0
+    data['depot'] = depot
     return data
 
 
@@ -31,12 +31,14 @@ def compute_euclidean_distance_matrix(locations):
     return distances
 
 
-def tsp(xy):
+def tsp(xy, depot=None):
     """Entry point of the program."""
     # Instantiate the data problem.
+    if depot is None:
+        depot = 0
 
     xyt = list(map(tuple, xy))
-    data = create_data_model(xyt)
+    data = create_data_model(xyt, depot=depot)
 
     # Create the routing index manager.
     manager = pywrapcp.RoutingIndexManager(len(data['locations']),
