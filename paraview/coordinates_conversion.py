@@ -9,6 +9,7 @@ import numpy as np
 from geographiclib.geodesic import Geodesic
 
 # %% Set directories
+
 cwd = os.getcwd()
 data_dir = jp(cwd, 'paraview', 'data')
 coord_file = jp(data_dir, 'coordinates_block_topo.txt')
@@ -70,11 +71,33 @@ blocks3d[:, 2] -= np.min((np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].ma
 
 # %% Coordinates conversion
 
-bound = np.flip(read_file(ep_file), axis=1)
 geod = Geodesic.WGS84  # define the WGS84 ellipsoid
-profile = geod.InverseLine(bound[0, 0], bound[0, 1], bound[1, 0], bound[1, 1])
-ds = 0
-g = profile.Position(ds, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
+# Load profile bounds, must be in the correct format:
+# [[ lat1, lon1], [lat2, lon2]]
+bounds = np.flip(read_file(ep_file), axis=1)
+profile = geod.InverseLine(bounds[0, 0], bounds[0, 1], bounds[1, 0], bounds[1, 1])
+
+
+def lat_lon(line, distance):
+    """
+    Returns the WGS coordinates given a distance between two coordinates.
+    :param line: InverseLine object
+    :param distance: Distance in meters
+    :return:
+    """
+
+    g = line.Position(distance, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
+
+    return g['lat2'], g['lon2']
+
+
+blocks_wgs = np.copy(blocks3d)
+
+for i in range(len(blocks_wgs)):
+    lat, lon = lat_lon(profile, blocks_wgs[i, 0])
+    blocks_wgs[i, 0] = lon
+    blocks_wgs[i, 1] = lat
+
 
 # %% VTK file creation
 
@@ -84,7 +107,7 @@ cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(shp[0]
 # Write file
 meshio.write_points_cells(
     "foo.vtk",
-    blocks3d,
+    blocks_wgs,
     cells,
     # Optionally provide extra data on points, cells, etc.
     # point_data=point_data,
