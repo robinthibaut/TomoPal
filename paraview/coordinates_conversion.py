@@ -4,6 +4,7 @@ import os
 from functools import reduce
 from os.path import join as jp
 
+import meshio
 import numpy as np
 
 # %% Set directories
@@ -47,22 +48,30 @@ def order_vertices(vertices):
 
 blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' vertices are now correctly ordered
 
-# columns = ['n', 'x0', 'z0', 'x1', 'z1', 'x2', 'z2', 'x3', 'z3', 'xc', 'zc', 'rho']
-# df = pd.DataFrame(data=blocks, columns=columns)
+# %% Add a new axis to make coordinates 3-D
+# We have now the axis along the profile line and the depth.
 
-# # Load hk array
-# hk = np.load(jp(results_dir, 'hk.npy')).reshape(-1)
-# cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(len(blocks))]
-#
-# meshio.write_points_cells(
-#     "foo.vtk",
-#     blocks3d,
-#     cells,
-#     # Optionally provide extra data on points, cells, etc.
-#     # point_data=point_data,
-#     cell_data={'hk': hk},
-#     # field_data=field_data
-#     )
-#
-# diavatly.model_map(blocks2d, hk, log=1)
-# plt.show()
+shp = blocks2d_vo.shape
+# Create empty array
+blocks3d = np.zeros((shp[0], shp[1], 3))
+
+# Insert 0 value for each vertices
+for i in range(len(blocks2d_vo)):
+    for j in range(shp[1]):
+        blocks3d[i, j] = np.insert(blocks2d_vo[i, j], 1, 0)
+
+# Flatten
+blocks3d = blocks3d.reshape(-1, 3)
+# Index of vertices
+cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(shp[0])]
+
+# Write file
+meshio.write_points_cells(
+    "foo.vtk",
+    blocks3d,
+    cells,
+    # Optionally provide extra data on points, cells, etc.
+    # point_data=point_data,
+    cell_data={'res': rho},
+    # field_data=field_data
+    )
