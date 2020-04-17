@@ -103,7 +103,7 @@ r = dataset.read(1)
 
 
 def elevation(lat_, lon_):
-    idx = dataset.index(lat_, lon_)
+    idx = dataset.index(lon_, lat_)
     return r[idx]
 
 
