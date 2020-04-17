@@ -1,5 +1,5 @@
 numpy~=1.18.1
 meshio~=4.0.10
-geopy~=1.21.0
 ortools~=7.5.7466
 geographiclib~=1.50
+rasterio~=1.1.0

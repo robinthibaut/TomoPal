@@ -79,26 +79,20 @@ bounds = np.flip(read_file(ep_file), axis=1)
 profile = geod.InverseLine(bounds[0, 0], bounds[0, 1], bounds[1, 0], bounds[1, 1])
 
 
-def lat_lon(line, distance):
+def lat_lon(distance):
     """
     Returns the WGS coordinates given a distance between two coordinates.
-    :param line: InverseLine object
     :param distance: Distance in meters
     :return:
     """
 
-    g = line.Position(distance, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
+    g = profile.Position(distance, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
 
     return g['lat2'], g['lon2']
 
 
 blocks_wgs = np.copy(blocks3d)
 
-# Convert distance along axis to lat/lon
-for i in range(len(blocks_wgs)):
-    lat, lon = lat_lon(profile, blocks_wgs[i, 0])
-    blocks_wgs[i, 0] = lon
-    blocks_wgs[i, 1] = lat
 
 # %% Insert elevation
 
@@ -108,9 +102,24 @@ dataset = rasterio.open(tif_file)
 r = dataset.read(1)
 
 
+def elevation(lat_, lon_):
+    idx = dataset.index(lat_, lon_)
+    return r[idx]
+
+
+# Convert distance along axis to lat/lon and add elevation
+for i in range(len(blocks_wgs)):
+    lat, lon = lat_lon(blocks_wgs[i, 0])
+    blocks_wgs[i, 0] = lat
+    blocks_wgs[i, 1] = lon
+    altitude = elevation(lat, lon) - blocks_wgs[i, 2]
+    blocks_wgs[i, 2] = altitude
+
+
 # %% VTK file creation
 
 # Index of vertices
+
 cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(shp[0])]
 
 # Write file
