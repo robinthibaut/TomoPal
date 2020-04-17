@@ -4,7 +4,6 @@ import os
 from functools import reduce
 from os.path import join as jp
 
-import geopy.distance as gpd
 import meshio
 import numpy as np
 from geographiclib.geodesic import Geodesic
@@ -72,7 +71,6 @@ blocks3d[:, 2] -= np.min((np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].ma
 # %% Coordinates conversion
 
 bound = np.flip(read_file(ep_file), axis=1)
-d = gpd.distance(bound[0], bound[1]).m
 geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 profile = geod.InverseLine(bound[0, 0], bound[0, 1], bound[1, 0], bound[1, 1])
 ds = 0
