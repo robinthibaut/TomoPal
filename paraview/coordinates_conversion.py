@@ -4,8 +4,10 @@ import os
 from functools import reduce
 from os.path import join as jp
 
+import geopy.distance as gpd
 import meshio
 import numpy as np
+from geographiclib.geodesic import Geodesic
 
 # %% Set directories
 cwd = os.getcwd()
@@ -62,6 +64,22 @@ for i in range(len(blocks2d_vo)):
 
 # Flatten
 blocks3d = blocks3d.reshape(-1, 3)
+
+# Set the maximum elevation at 0
+blocks3d[:, 2] -= np.min((np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].max())))
+
+
+# %% Coordinates conversion
+
+bound = np.flip(read_file(ep_file), axis=1)
+d = gpd.distance(bound[0], bound[1]).m
+geod = Geodesic.WGS84  # define the WGS84 ellipsoid
+profile = geod.InverseLine(bound[0, 0], bound[0, 1], bound[1, 0], bound[1, 1])
+ds = 0
+g = profile.Position(ds, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
+
+# %% VTK file creation
+
 # Index of vertices
 cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(shp[0])]
 
