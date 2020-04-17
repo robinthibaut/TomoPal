@@ -96,6 +96,7 @@ blocks_wgs = np.copy(blocks3d)
 
 # %% Insert elevation
 
+# Load tif file
 dataset = rasterio.open(tif_file)
 
 # Elevation data:
