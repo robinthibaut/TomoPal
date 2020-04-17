@@ -6,10 +6,14 @@ from os.path import join as jp
 
 import numpy as np
 
+# %% Set directories
 cwd = os.getcwd()
 data_dir = jp(cwd, 'paraview', 'data')
 coord_file = jp(data_dir, 'coordinates_block_topo.txt')
 ep_file = jp(data_dir, 'end_points.txt')
+
+
+# %% Read data
 
 
 def read_file(file=None, header=0):
@@ -19,20 +23,29 @@ def read_file(file=None, header=0):
     return op
 
 
-blocks = read_file(coord_file)
-blocks2d = blocks[:, 1:-3]
-rho = blocks[:, -1]
+blocks = read_file(coord_file)  # Raw mesh info
+blocks2d_flat = blocks[:, 1:-3]  # Flat list of polygon vertices
+rho = blocks[:, -1]  # Resistivity
+blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
-blocks2d_flat = blocks2d.reshape(-1, 2)
 
-test = blocks2d_flat[:4]
+# %% Order vertices in each block to correspond to VTK requirements
 
-coords = test
-center = tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), coords), [len(coords)] * 2))
 
-so = sorted(test,
-            key=lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))))
-print(so)
+def order_vertices(vertices):
+    # Compute center of vertices
+    center = \
+        tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), vertices), [len(vertices)] * 2))
+
+    # Sort vertices according to angle
+    so = \
+        sorted(vertices,
+               key=lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))))
+
+    return np.array(so)
+
+
+blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' vertices are now correctly ordered
 
 # columns = ['n', 'x0', 'z0', 'x1', 'z1', 'x2', 'z2', 'x3', 'z3', 'xc', 'zc', 'rho']
 # df = pd.DataFrame(data=blocks, columns=columns)
