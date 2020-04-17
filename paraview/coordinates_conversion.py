@@ -6,6 +6,7 @@ from os.path import join as jp
 
 import meshio
 import numpy as np
+import rasterio
 from geographiclib.geodesic import Geodesic
 
 # %% Set directories
@@ -14,7 +15,7 @@ cwd = os.getcwd()
 data_dir = jp(cwd, 'paraview', 'data')
 coord_file = jp(data_dir, 'coordinates_block_topo.txt')
 ep_file = jp(data_dir, 'end_points.txt')
-
+tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
 # %% Read data
 
@@ -93,10 +94,18 @@ def lat_lon(line, distance):
 
 blocks_wgs = np.copy(blocks3d)
 
+# Convert distance along axis to lat/lon
 for i in range(len(blocks_wgs)):
     lat, lon = lat_lon(profile, blocks_wgs[i, 0])
     blocks_wgs[i, 0] = lon
     blocks_wgs[i, 1] = lat
+
+# %% Insert elevation
+
+dataset = rasterio.open(tif_file)
+
+# Elevation data:
+r = dataset.read(1)
 
 
 # %% VTK file creation
