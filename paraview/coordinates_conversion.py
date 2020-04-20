@@ -37,6 +37,11 @@ blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
 
 def order_vertices(vertices):
+    """
+    Paraview expects vertices in a particular order, with the origin at the bottom left corner.
+    :param vertices: (x, y) coordinates of the polygon vertices
+    :return:
+    """
     # Compute center of vertices
     center = \
         tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), vertices), [len(vertices)] * 2))
@@ -83,7 +88,7 @@ def lat_lon(distance):
     """
     Returns the WGS coordinates given a distance between two coordinates.
     :param distance: Distance in meters
-    :return:
+    :return: latitude WGS84, longitude WGS84
     """
 
     g = profile.Position(distance, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
@@ -104,6 +109,12 @@ r = dataset.read(1)
 
 
 def elevation(lat_, lon_):
+    """
+    Gets the elevation from a raster file given a pair of latitude/longitude coordinates
+    :param lat_: latitude WGS84
+    :param lon_: longitude WGS84
+    :return: Elevation (m)
+    """
     idx = dataset.index(lon_, lat_)
     return r[idx]
 
