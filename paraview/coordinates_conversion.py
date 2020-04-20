@@ -20,9 +20,9 @@ def read_file(file=None, header=0):
     return op
 
 
-def conversion(name, blocks_vertices, endpoints, values):
+def conversion():
 
-    blocks2d = blocks_vertices.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
+    blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
     # %% Order vertices in each block to correspond to VTK requirements
 
@@ -68,7 +68,7 @@ def conversion(name, blocks_vertices, endpoints, values):
     geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
     # Create an 'InverseLine' bounded by the profile endpoints.
-    profile = geod.InverseLine(endpoints[0, 0], endpoints[0, 1], endpoints[1, 0], endpoints[1, 1])
+    profile = geod.InverseLine(bounds[0, 0], bounds[0, 1], bounds[1, 0], bounds[1, 1])
 
     def lat_lon(distance):
         """
@@ -84,12 +84,6 @@ def conversion(name, blocks_vertices, endpoints, values):
     blocks_wgs = np.copy(blocks3d)
 
     # %% Insert elevation
-
-    # Load tif file
-    dataset = rasterio.open(tif_file)
-
-    # Elevation data:
-    r = dataset.read(1)
 
     def elevation(lat_, lon_):
         """
@@ -140,7 +134,7 @@ def conversion(name, blocks_vertices, endpoints, values):
         ".\\vtk\\{}.vtk".format(name),
         blocks_local,
         cells,
-        cell_data={'res': values}
+        cell_data={'res': rho}
     )
 
 
@@ -149,10 +143,10 @@ if __name__ == '__main__':
     # Set directories
 
     cwd = os.getcwd()
-    file = '14'
+    name = '14'
     data_dir = jp(cwd, 'data')
-    coord_file = jp(data_dir, file, 'p{}.dat'.format(file))
-    ep_file = jp(data_dir, file, 'end_points.txt')
+    coord_file = jp(data_dir, name, 'p{}.dat'.format(name))
+    ep_file = jp(data_dir, name, 'end_points.txt')
     tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
     blocks = read_file(coord_file)  # Raw mesh info
@@ -166,9 +160,12 @@ if __name__ == '__main__':
     # [[ lat1, lon1], [lat2, lon2]]
     bounds = np.flip(read_file(ep_file), axis=1)  # Flip only in this case as the format is incorrect.
 
-    conversion(name=file,
-               blocks_vertices=blocks2d_flat,
-               endpoints=bounds,
-               values=rho)
+    # Elevation data
+    # Load tif file
+    dataset = rasterio.open(tif_file)
+    # Elevation data:
+    r = dataset.read(1)
+
+    conversion()
 
 
