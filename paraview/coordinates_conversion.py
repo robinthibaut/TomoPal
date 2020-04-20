@@ -60,7 +60,7 @@ blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' verti
 # We have now the axis along the profile line and the depth.
 
 shp = blocks2d_vo.shape
-# Create empty array
+# Create 3D empty array
 blocks3d = np.zeros((shp[0], shp[1], 3))
 
 # Insert 0 value for each vertices
@@ -80,14 +80,15 @@ blocks3d[:, 2] -= np.min((np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].ma
 geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 # Load profile bounds, must be in the correct format:
 # [[ lat1, lon1], [lat2, lon2]]
-bounds = np.flip(read_file(ep_file), axis=1)
+bounds = np.flip(read_file(ep_file), axis=1)  # Flip only in this case as the format is incorrect.
+# Create an 'InverseLine' bounded by the profile endpoints.
 profile = geod.InverseLine(bounds[0, 0], bounds[0, 1], bounds[1, 0], bounds[1, 1])
 
 
 def lat_lon(distance):
     """
-    Returns the WGS coordinates given a distance between two coordinates.
-    :param distance: Distance in meters
+    Returns the WGS coordinates given a distance along the axis of the profile.
+    :param distance: Distance along the profile from its origin (m)
     :return: latitude WGS84, longitude WGS84
     """
 
@@ -131,7 +132,6 @@ for i in range(len(blocks_wgs)):
 # %% VTK file creation
 
 # Index of vertices
-
 cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(shp[0])]
 
 # Write file
@@ -139,8 +139,5 @@ meshio.write_points_cells(
     "foo.vtk",
     blocks_wgs,
     cells,
-    # Optionally provide extra data on points, cells, etc.
-    # point_data=point_data,
-    cell_data={'res': rho},
-    # field_data=field_data
+    cell_data={'res': rho}
     )
