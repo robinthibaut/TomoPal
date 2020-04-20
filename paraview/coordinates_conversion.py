@@ -20,9 +20,9 @@ def read_file(file=None, header=0):
     return op
 
 
-def conversion(blocks, bounds, values):
+def conversion(name, blocks_vertices, endpoints, values):
 
-    blocks2d = blocks.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
+    blocks2d = blocks_vertices.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
     # %% Order vertices in each block to correspond to VTK requirements
 
@@ -68,7 +68,7 @@ def conversion(blocks, bounds, values):
     geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
     # Create an 'InverseLine' bounded by the profile endpoints.
-    profile = geod.InverseLine(bounds[0, 0], bounds[0, 1], bounds[1, 0], bounds[1, 1])
+    profile = geod.InverseLine(endpoints[0, 0], endpoints[0, 1], endpoints[1, 0], endpoints[1, 1])
 
     def lat_lon(distance):
         """
@@ -114,6 +114,12 @@ def conversion(blocks, bounds, values):
     lat_origin, long_origin = 11.207775, 108.529248
 
     def local_system(lat_p, lon_p):
+        """
+        Given an origin, converts the WGS84 coordinates into meters around that point.
+        :param lat_p:
+        :param lon_p:
+        :return:
+        """
         line = geod.InverseLine(lat_origin, long_origin, lat_p, lon_p)
         azi = line.azi1
         dis = line.s13
@@ -131,7 +137,7 @@ def conversion(blocks, bounds, values):
 
     # Write file
     meshio.write_points_cells(
-        "foo14.vtk",
+        ".\\vtk\\{}.vtk".format(name),
         blocks_local,
         cells,
         cell_data={'res': values}
@@ -139,12 +145,14 @@ def conversion(blocks, bounds, values):
 
 
 if __name__ == '__main__':
-    # %% Set directories
+
+    # Set directories
 
     cwd = os.getcwd()
-    data_dir = jp(cwd, 'paraview', 'data')
-    coord_file = jp(data_dir, '14', 'p14.dat')
-    ep_file = jp(data_dir, '14', 'end_points.txt')
+    file = '14'
+    data_dir = jp(cwd, 'data')
+    coord_file = jp(data_dir, file, 'p{}.dat'.format(file))
+    ep_file = jp(data_dir, file, 'end_points.txt')
     tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
     blocks = read_file(coord_file)  # Raw mesh info
@@ -158,6 +166,9 @@ if __name__ == '__main__':
     # [[ lat1, lon1], [lat2, lon2]]
     bounds = np.flip(read_file(ep_file), axis=1)  # Flip only in this case as the format is incorrect.
 
-    conversion()
+    conversion(name=file,
+               blocks_vertices=blocks2d_flat,
+               endpoints=bounds,
+               values=rho)
 
 
