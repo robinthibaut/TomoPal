@@ -13,8 +13,8 @@ from geographiclib.geodesic import Geodesic
 
 cwd = os.getcwd()
 data_dir = jp(cwd, 'paraview', 'data')
-coord_file = jp(data_dir, 'coordinates_block_topo.txt')
-ep_file = jp(data_dir, 'end_points.txt')
+coord_file = jp(data_dir, '13', 'p13.dat')
+ep_file = jp(data_dir, '13', 'end_points.txt')
 tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
 # %% Read data
@@ -129,6 +129,24 @@ for i in range(len(blocks_wgs)):
     blocks_wgs[i, 2] = altitude
 
 
+# %% Set in local coordinate system
+
+lat_origin, long_origin = 11.207775, 108.529248
+
+
+def local_system(lat_p, lon_p):
+    line = geod.InverseLine(lat_origin, long_origin, lat_p, lon_p)
+    azi = line.azi1
+    dis = line.s13
+    return dis*math.sin(math.radians(azi)), dis*math.cos(math.radians(azi))
+
+
+blocks_local = np.copy(blocks_wgs)
+
+for i in range(len(blocks_wgs)):
+    blocks_local[i, 0], blocks_wgs[i, 1] = local_system(blocks_local[i, 0], blocks_local[i, 1])
+
+
 # %% VTK file creation
 
 # Index of vertices
@@ -137,7 +155,7 @@ cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(shp[0]
 # Write file
 meshio.write_points_cells(
     "foo.vtk",
-    blocks_wgs,
+    blocks_local,
     cells,
     cell_data={'res': rho}
     )
