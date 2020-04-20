@@ -13,12 +13,11 @@ from geographiclib.geodesic import Geodesic
 
 cwd = os.getcwd()
 data_dir = jp(cwd, 'paraview', 'data')
-coord_file = jp(data_dir, '13', 'p13.dat')
-ep_file = jp(data_dir, '13', 'end_points.txt')
+coord_file = jp(data_dir, '14', 'p14.dat')
+ep_file = jp(data_dir, '14', 'end_points.txt')
 tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
 # %% Read data
-
 
 def read_file(file=None, header=0):
     """Reads space separated dat file"""
@@ -28,9 +27,12 @@ def read_file(file=None, header=0):
 
 
 blocks = read_file(coord_file)  # Raw mesh info
-blocks2d_flat = blocks[:, 1:-3]  # Flat list of polygon vertices
+blocks2d_flat = blocks[:, 1:-1]  # Flat list of polygon vertices
 rho = blocks[:, -1]  # Resistivity
 blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
+# blocks2d_flat = blocks[:, 1:-3]  # Flat list of polygon vertices
+# rho = blocks[:, -1]  # Resistivity
+# blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
 
 # %% Order vertices in each block to correspond to VTK requirements
@@ -154,7 +156,7 @@ cells = [("quad", np.array([list(np.arange(i*4, i*4+4))])) for i in range(shp[0]
 
 # Write file
 meshio.write_points_cells(
-    "foo.vtk",
+    "foo14.vtk",
     blocks_local,
     cells,
     cell_data={'res': rho}
