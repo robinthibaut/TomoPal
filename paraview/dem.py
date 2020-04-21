@@ -30,8 +30,8 @@ geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
 bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
 
-lats = np.linspace(bbox[0][0], bbox[1][0], 100)
-longs = np.linspace(bbox[0][1], bbox[1][1], 100)
+lats = np.linspace(bbox[0][0], bbox[1][0], 200)
+longs = np.linspace(bbox[0][1], bbox[1][1], 200)
 cs = list(itertools.product(lats, longs))
 
 tri = Delaunay(cs)
@@ -59,7 +59,8 @@ def dem_local_system(arg):
 
 
 dem_local = np.array(list(map(dem_local_system, dem_wgs)))
-
+cells_struct = np.array([list(np.arange(i * 3, i * 3 + 3)) for i in range(shp[0])])
+elev = np.mean(dem_local[:, 2][cells_struct], axis=1)
 cells = [("triangle", np.array([list(np.arange(i * 3, i * 3 + 3))])) for i in range(shp[0])]
 
 # # Write file
@@ -67,6 +68,6 @@ meshio.write_points_cells(
     filename="points.vtk",
     points=dem_local,
     cells=cells,
-    cell_data={'elevation': }
+    cell_data={'elevation': elev}
 )
 
