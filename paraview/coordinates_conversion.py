@@ -10,9 +10,6 @@ import rasterio
 from geographiclib.geodesic import Geodesic
 
 
-# %% Read data
-
-
 def read_file(file=None, header=0):
     """Reads space separated dat file"""
     with open(file, 'r') as fr:
@@ -141,7 +138,6 @@ def conversion():
 if __name__ == '__main__':
 
     # Set directories
-
     cwd = os.getcwd()
     name = '14'
     data_dir = jp(cwd, 'data')
