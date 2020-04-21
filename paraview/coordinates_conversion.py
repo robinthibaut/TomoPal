@@ -17,32 +17,33 @@ def read_file(file=None, header=0):
     return op
 
 
+def order_vertices(vertices):
+    """
+    Paraview expects vertices in a particular order, with the origin at the bottom left corner.
+    :param vertices: (x, y) coordinates of the polygon vertices
+    :return:
+    """
+    # Compute center of vertices
+    center = \
+        tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), vertices), [len(vertices)] * 2))
+
+    # Sort vertices according to angle
+    so = \
+        sorted(vertices,
+               key=lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))))
+
+    return np.array(so)
+
+
 def conversion():
 
     blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
     # %% Order vertices in each block to correspond to VTK requirements
 
-    def order_vertices(vertices):
-        """
-        Paraview expects vertices in a particular order, with the origin at the bottom left corner.
-        :param vertices: (x, y) coordinates of the polygon vertices
-        :return:
-        """
-        # Compute center of vertices
-        center = \
-            tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), vertices), [len(vertices)] * 2))
-
-        # Sort vertices according to angle
-        so = \
-            sorted(vertices,
-                   key=lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))))
-
-        return np.array(so)
-
     blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' vertices are now correctly ordered
 
-    # %% Add a new axis to make coordinates 3-D
+# %% Add a new axis to make coordinates 3-D
     # We have now the axis along the profile line and the depth.
 
     shp = blocks2d_vo.shape

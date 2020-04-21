@@ -3,10 +3,13 @@ import math
 import os
 from os.path import join as jp
 
+import meshio
 import numpy as np
 import rasterio
 from geographiclib.geodesic import Geodesic
 from scipy.spatial import Delaunay
+
+from paraview.coordinates_conversion import order_vertices
 
 # %% Set directories
 cwd = os.getcwd()
@@ -53,13 +56,21 @@ def dem_local_system(arg):
 
 dem_local = list(map(dem_local_system, dem_wgs))
 tri = Delaunay(dem_local)
+simp = tri.simplices
+points = tri.points
 
+blocks = points[simp]
+shp = blocks.shape
 
-# cells = [("poly_vertex", [i]) for i in range(len(dem_local))]
+blocks_ordered = np.array([order_vertices(vs) for vs in blocks]).reshape(shp[0]*shp[1], 3)
+# Blocks' vertices are now correctly ordered
+cells = [("quad", np.array([list(np.arange(i * 4, i * 4 + 4))])) for i in range(len(blocks))]
+
+# cells = [("quad", s) for s in simp]
 # # Write file
-# meshio.write_points_cells(
-#     ".\\vtk\\points.vtk",
-#     dem_local,
-#     cells
-# )
+meshio.write_points_cells(
+    filename="points.vtk",
+    points=blocks_ordered,
+    cells=cells
+)
 
