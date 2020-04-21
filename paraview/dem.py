@@ -1,9 +1,12 @@
 import itertools
+import math
 import os
 from os.path import join as jp
 
 import numpy as np
 import rasterio
+from geographiclib.geodesic import Geodesic
+from scipy.spatial import Delaunay
 
 # %% Set directories
 cwd = os.getcwd()
@@ -21,13 +24,42 @@ def elevation(lat_, lon_):
     return r[idx]
 
 
+geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 # %% Define bounds of polygon in which to build DEM
 
 bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
-# list(itertools.combinations([1,2, 3,4], 2))
-lats = np.linspace(bbox[0][0], bbox[1][0], 1000)
-longs = np.linspace(bbox[0][1], bbox[1][1], 1000)
+
+lats = np.linspace(bbox[0][0], bbox[1][0], 100)
+longs = np.linspace(bbox[0][1], bbox[1][1], 100)
 cs = list(itertools.product(lats, longs))
 
-dem = [[c[0], c[1], elevation(c[0], c[1])] for c in cs]
+dem_wgs = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])
+
+lat_origin, long_origin = 11.207775, 108.529248
+
+
+def dem_local_system(arg):
+    """
+    Given an origin, converts the WGS84 coordinates into meters around that point.
+    :param lat_p:
+    :param lon_p:
+    :return:
+    """
+    line = geod.InverseLine(lat_origin, long_origin, arg[0], arg[1])
+    azi = line.azi1
+    dis = line.s13
+    return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi)), arg[2]
+
+
+dem_local = list(map(dem_local_system, dem_wgs))
+tri = Delaunay(dem_local)
+
+
+# cells = [("poly_vertex", [i]) for i in range(len(dem_local))]
+# # Write file
+# meshio.write_points_cells(
+#     ".\\vtk\\points.vtk",
+#     dem_local,
+#     cells
+# )
 
