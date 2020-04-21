@@ -9,8 +9,6 @@ import rasterio
 from geographiclib.geodesic import Geodesic
 from scipy.spatial import Delaunay
 
-from paraview.coordinates_conversion import order_vertices
-
 # %% Set directories
 cwd = os.getcwd()
 data_dir = jp(cwd, 'paraview', 'data')
@@ -36,7 +34,13 @@ lats = np.linspace(bbox[0][0], bbox[1][0], 100)
 longs = np.linspace(bbox[0][1], bbox[1][1], 100)
 cs = list(itertools.product(lats, longs))
 
-dem_wgs = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])
+tri = Delaunay(cs)
+simp = tri.simplices
+shp = simp.shape
+points = tri.points
+tri_del = points[simp].reshape(-1, 2)
+
+dem_wgs = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in tri_del])
 
 lat_origin, long_origin = 11.207775, 108.529248
 
@@ -54,23 +58,15 @@ def dem_local_system(arg):
     return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi)), arg[2]
 
 
-dem_local = list(map(dem_local_system, dem_wgs))
-tri = Delaunay(dem_local)
-simp = tri.simplices
-points = tri.points
+dem_local = np.array(list(map(dem_local_system, dem_wgs)))
 
-blocks = points[simp]
-shp = blocks.shape
+cells = [("triangle", np.array([list(np.arange(i * 3, i * 3 + 3))])) for i in range(shp[0])]
 
-blocks_ordered = np.array([order_vertices(vs) for vs in blocks]).reshape(shp[0]*shp[1], 3)
-# Blocks' vertices are now correctly ordered
-cells = [("quad", np.array([list(np.arange(i * 4, i * 4 + 4))])) for i in range(len(blocks))]
-
-# cells = [("quad", s) for s in simp]
 # # Write file
 meshio.write_points_cells(
     filename="points.vtk",
-    points=blocks_ordered,
-    cells=cells
+    points=dem_local,
+    cells=cells,
+    cell_data={'elevation': }
 )
 
