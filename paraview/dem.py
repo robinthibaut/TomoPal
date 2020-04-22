@@ -48,8 +48,7 @@ lat_origin, long_origin = 11.207775, 108.529248
 def dem_local_system(arg):
     """
     Given an origin, converts the WGS84 coordinates into meters around that point.
-    :param lat_p:
-    :param lon_p:
+    :param arg: [lat (decimal degree wgs84), lon (decimal degree wgs84), elev (m)]
     :return:
     """
     line = geod.InverseLine(lat_origin, long_origin, arg[0], arg[1])

@@ -72,7 +72,7 @@ def conversion():
         """
         Returns the WGS coordinates given a distance along the axis of the profile.
         :param distance: Distance along the profile from its origin (m)
-        :return: latitude WGS84, longitude WGS84
+        :return: latitude WGS84 in decimal degrees, longitude WGS84 in decimal degrees
         """
 
         g = profile.Position(distance, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
@@ -86,8 +86,8 @@ def conversion():
     def elevation(lat_, lon_):
         """
         Gets the elevation from a raster file given a pair of latitude/longitude coordinates
-        :param lat_: latitude WGS84
-        :param lon_: longitude WGS84
+        :param lat_: latitude WGS84 in decimal degrees
+        :param lon_: longitude WGS84 in decimal degrees
         :return: Elevation (m)
         """
         idx = dataset.index(lon_, lat_)
@@ -108,8 +108,8 @@ def conversion():
     def local_system(lat_p, lon_p):
         """
         Given an origin, converts the WGS84 coordinates into meters around that point.
-        :param lat_p:
-        :param lon_p:
+        :param lat_p: latitude (decimal degree wgs84)
+        :param lon_p: longitude (decimal degree wgs84)
         :return:
         """
         line = geod.InverseLine(lat_origin, long_origin, lat_p, lon_p)
@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
     # Set directories
     cwd = os.getcwd()
-    name = '14'
+    name = '13'
     data_dir = jp(cwd, 'data')
     coord_file = jp(data_dir, name, 'p{}.dat'.format(name))
     ep_file = jp(data_dir, name, 'end_points.txt')
