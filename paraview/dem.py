@@ -34,13 +34,13 @@ lats = np.linspace(bbox[0][0], bbox[1][0], 250)
 longs = np.linspace(bbox[0][1], bbox[1][1], 250)
 cs = list(itertools.product(lats, longs))
 
-tri = Delaunay(cs)
-simp = tri.simplices
+tri = Delaunay(cs)  # Perform Delaunay triangulation on wgs coordinates
+simp = tri.simplices  # Extract simplices (=vertices)
 shp = simp.shape
-points = tri.points
-tri_del = points[simp].reshape(-1, 2)
+points = tri.points  # Corresponding points
+tri_del = points[simp].reshape(-1, 2)  # 2D array of points
 
-dem_wgs = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in tri_del])
+dem_wgs = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in tri_del])  # For each vertices, extract elevation
 
 lat_origin, long_origin = 11.207775, 108.529248
 
