@@ -41,7 +41,6 @@ def conversion():
     # %% Order vertices in each block to correspond to VTK requirements
 
     blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' vertices are now correctly ordered
-
     # %% Add a new axis to make coordinates 3-D
     # We have now the axis along the profile line and the depth.
 
@@ -97,7 +96,7 @@ def conversion():
         lat, lon = lat_lon(blocks_wgs[i, 0])
         blocks_wgs[i, 0] = lat
         blocks_wgs[i, 1] = lon
-        altitude = elevation(lat, lon) - blocks_wgs[i, 2]
+        altitude = elevation(lat, lon) - np.abs(blocks_wgs[i, 2])
         blocks_wgs[i, 2] = altitude
 
     # %% Set in local coordinate system
@@ -119,7 +118,8 @@ def conversion():
     blocks_local = np.copy(blocks_wgs)
 
     for i in range(len(blocks_wgs)):
-        blocks_local[i, 0], blocks_wgs[i, 1] = local_system(blocks_local[i, 0], blocks_local[i, 1])
+        x, y = local_system(blocks_local[i, 0], blocks_local[i, 1])
+        blocks_local[i, 0], blocks_local[i, 1] = x, y
 
     # %% VTK file creation
 
@@ -138,18 +138,19 @@ def conversion():
 if __name__ == '__main__':
     # Set directories
     cwd = os.getcwd()
-    name = '13'
+    name = '14'
     data_dir = jp(cwd, 'data')
     coord_file = jp(data_dir, name, 'p{}.dat'.format(name))
     ep_file = jp(data_dir, name, 'end_points.txt')
     tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
     blocks = read_file(coord_file)  # Raw mesh info
+
     blocks2d_flat = blocks[:, 1:-1]  # Flat list of polygon vertices
-    rho = blocks[:, -1]  # Resistivity
+
     # blocks2d_flat = blocks[:, 1:-3]  # Flat list of polygon vertices
-    # rho = blocks[:, -1]  # Resistivity
-    # blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
+
+    rho = blocks[:, -1]  # Resistivity
 
     # Load profile bounds, must be in the correct format:
     # [[ lat1, lon1], [lat2, lon2]]
