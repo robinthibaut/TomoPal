@@ -36,14 +36,13 @@ def order_vertices(vertices):
 
 
 def conversion():
-
     blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
     # %% Order vertices in each block to correspond to VTK requirements
 
     blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' vertices are now correctly ordered
 
-# %% Add a new axis to make coordinates 3-D
+    # %% Add a new axis to make coordinates 3-D
     # We have now the axis along the profile line and the depth.
 
     shp = blocks2d_vo.shape
@@ -137,7 +136,6 @@ def conversion():
 
 
 if __name__ == '__main__':
-
     # Set directories
     cwd = os.getcwd()
     name = '13'
@@ -164,5 +162,3 @@ if __name__ == '__main__':
     r = dataset.read(1)
 
     conversion()
-
-
