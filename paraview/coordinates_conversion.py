@@ -138,7 +138,7 @@ def conversion():
 if __name__ == '__main__':
     # Set directories
     cwd = os.getcwd()
-    name = '14'
+    name = '22'
     data_dir = jp(cwd, 'data')
     coord_file = jp(data_dir, name, 'p{}.dat'.format(name))
     ep_file = jp(data_dir, name, 'end_points.txt')

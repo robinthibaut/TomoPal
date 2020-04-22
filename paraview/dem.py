@@ -30,8 +30,8 @@ geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
 bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
 
-lats = np.linspace(bbox[0][0], bbox[1][0], 200)
-longs = np.linspace(bbox[0][1], bbox[1][1], 200)
+lats = np.linspace(bbox[0][0], bbox[1][0], 250)
+longs = np.linspace(bbox[0][1], bbox[1][1], 250)
 cs = list(itertools.product(lats, longs))
 
 tri = Delaunay(cs)
@@ -69,4 +69,3 @@ meshio.write_points_cells(
     cells=cells,
     cell_data={'elevation': elev}
 )
-
