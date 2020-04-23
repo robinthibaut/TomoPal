@@ -36,6 +36,33 @@ def order_vertices(vertices):
 
 
 def conversion():
+
+    # Set directories
+    cwd = os.getcwd()
+    name = '22'
+    data_dir = jp(cwd, 'data')
+    coord_file = jp(data_dir, name, 'p{}.dat'.format(name))
+    ep_file = jp(data_dir, name, 'end_points.txt')
+    tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
+
+    blocks = read_file(coord_file)  # Raw mesh info
+
+    blocks2d_flat = blocks[:, 1:-1]  # Flat list of polygon vertices
+
+    # blocks2d_flat = blocks[:, 1:-3]  # Flat list of polygon vertices
+
+    rho = blocks[:, -1]  # Resistivity
+
+    # Load profile bounds, must be in the correct format:
+    # [[ lat1, lon1], [lat2, lon2]]
+    bounds = np.flip(read_file(ep_file), axis=1)  # Flip only in this case as the format is incorrect.
+
+    # Elevation data
+    # Load tif file
+    dataset = rasterio.open(tif_file)
+    # Elevation data:
+    r = dataset.read(1)
+
     blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
     # %% Order vertices in each block to correspond to VTK requirements
@@ -136,30 +163,4 @@ def conversion():
 
 
 if __name__ == '__main__':
-    # Set directories
-    cwd = os.getcwd()
-    name = '22'
-    data_dir = jp(cwd, 'data')
-    coord_file = jp(data_dir, name, 'p{}.dat'.format(name))
-    ep_file = jp(data_dir, name, 'end_points.txt')
-    tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
-
-    blocks = read_file(coord_file)  # Raw mesh info
-
-    blocks2d_flat = blocks[:, 1:-1]  # Flat list of polygon vertices
-
-    # blocks2d_flat = blocks[:, 1:-3]  # Flat list of polygon vertices
-
-    rho = blocks[:, -1]  # Resistivity
-
-    # Load profile bounds, must be in the correct format:
-    # [[ lat1, lon1], [lat2, lon2]]
-    bounds = np.flip(read_file(ep_file), axis=1)  # Flip only in this case as the format is incorrect.
-
-    # Elevation data
-    # Load tif file
-    dataset = rasterio.open(tif_file)
-    # Elevation data:
-    r = dataset.read(1)
-
     conversion()
