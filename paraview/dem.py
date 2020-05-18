@@ -1,6 +1,5 @@
 #  Copyright (c) 2020. Robin Thibaut, Ghent University
 
-import itertools
 import math
 import os
 from os.path import join as jp
@@ -32,9 +31,11 @@ def dem():
 
     bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
 
-    lats = np.linspace(bbox[0][0], bbox[1][0], 100)
-    longs = np.linspace(bbox[0][1], bbox[1][1], 100)
-    cs = list(itertools.product(lats, longs))
+    lats = np.linspace(bbox[0][0], bbox[1][0], 50)
+    longs = np.linspace(bbox[0][1], bbox[1][1], 50)
+    # cs = list(itertools.product(lats, longs))
+    xv, yv = np.meshgrid(lats, longs, sparse=False, indexing='xy')
+    cs = np.stack((xv, yv), axis=2).reshape((-1, 2))
 
     tri = Delaunay(cs)  # Perform Delaunay triangulation on wgs coordinates
     simp = tri.simplices  # Extract simplices (=vertices)
@@ -43,7 +44,8 @@ def dem():
     tri_del = points[simp].reshape(-1, 2)  # 2D array of points
 
     dem_wgs = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in tri_del])  # For each vertices, extract elevation
-    dem_wgs_points = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])
+    dem_wgs_pt = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])
+    # dem_wgs_pt = np.array([[xx, yy, elevation(xx, yy)] for xx in xv for yy in yv]).reshape(-1, 3)
 
     lat_origin, long_origin = 11.207775, 108.529248
 
@@ -59,25 +61,21 @@ def dem():
         return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi)), arg[2]
 
     dem_local = np.array(list(map(dem_local_system, dem_wgs)))  # Convert WGS to local coordinates in meters
-    cells_struct = np.array([list(np.arange(i * 3, i * 3 + 3)) for i in range(shp[0])])  # Indexes of triangles corners
-    elev = np.mean(dem_local[:, 2][cells_struct], axis=1)  # Elevation of the middle of each triangle
-    cells_triangles = [("triangle", np.array([list(np.arange(i * 3, i * 3 + 3))])) for i in range(shp[0])]
-    cells_points = [("vertex", np.array([[i]])) for i in range(len(cs))]
+    dem_local_pt = np.array(list(map(dem_local_system, dem_wgs_pt)))  # Convert WGS to local coordinates in meters
+    np.save(jp(data_dir, 'pts'), dem_local_pt)
 
-    # Write triangulation file
-    # meshio.write_points_cells(
-    #     filename=".\\vtk\\dem.vtk",
-    #     points=dem_local,
-    #     cells=cells_triangles,
-    #     cell_data={'elevation': elev}
-    # )
+    cells_struct = np.array([list(np.arange(i * 3, i * 3 + 3)) for i in range(shp[0])])  # Indexes of triangles corners
+
+    elev = np.mean(dem_local[:, 2][cells_struct], axis=1)  # Elevation of the middle of each triangle
+
+    cells_triangles = [("triangle", np.array([list(np.arange(i * 3, i * 3 + 3))])) for i in range(shp[0])]
 
     # Write triangulation file
     meshio.write_points_cells(
-        filename=".\\vtk\\dem_points.vtk",
+        filename=".\\vtk\\dem.vtk",
         points=dem_local,
-        cells=cells_points,
-        cell_data={'elevation': dem_local[:, 2]}
+        cells=cells_triangles,
+        cell_data={'elevation': elev}
     )
 
 
