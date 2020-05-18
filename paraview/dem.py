@@ -32,8 +32,8 @@ def dem():
 
     bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
 
-    lats = np.linspace(bbox[0][0], bbox[1][0], 250)
-    longs = np.linspace(bbox[0][1], bbox[1][1], 250)
+    lats = np.linspace(bbox[0][0], bbox[1][0], 100)
+    longs = np.linspace(bbox[0][1], bbox[1][1], 100)
     cs = list(itertools.product(lats, longs))
 
     tri = Delaunay(cs)  # Perform Delaunay triangulation on wgs coordinates
@@ -43,6 +43,7 @@ def dem():
     tri_del = points[simp].reshape(-1, 2)  # 2D array of points
 
     dem_wgs = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in tri_del])  # For each vertices, extract elevation
+    dem_wgs_points = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])
 
     lat_origin, long_origin = 11.207775, 108.529248
 
@@ -60,14 +61,23 @@ def dem():
     dem_local = np.array(list(map(dem_local_system, dem_wgs)))  # Convert WGS to local coordinates in meters
     cells_struct = np.array([list(np.arange(i * 3, i * 3 + 3)) for i in range(shp[0])])  # Indexes of triangles corners
     elev = np.mean(dem_local[:, 2][cells_struct], axis=1)  # Elevation of the middle of each triangle
-    cells = [("triangle", np.array([list(np.arange(i * 3, i * 3 + 3))])) for i in range(shp[0])]  # vtk default
+    cells_triangles = [("triangle", np.array([list(np.arange(i * 3, i * 3 + 3))])) for i in range(shp[0])]
+    cells_points = [("vertex", np.array([[i]])) for i in range(len(cs))]
 
-    # # Write file
+    # Write triangulation file
+    # meshio.write_points_cells(
+    #     filename=".\\vtk\\dem.vtk",
+    #     points=dem_local,
+    #     cells=cells_triangles,
+    #     cell_data={'elevation': elev}
+    # )
+
+    # Write triangulation file
     meshio.write_points_cells(
-        filename=".\\vtk\\dem.vtk",
+        filename=".\\vtk\\dem_points.vtk",
         points=dem_local,
-        cells=cells,
-        cell_data={'elevation': elev}
+        cells=cells_points,
+        cell_data={'elevation': dem_local[:, 2]}
     )
 
 
