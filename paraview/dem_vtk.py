@@ -114,7 +114,7 @@ actor_loop.SetTexture(atext)
 actor_loop.GetProperty().SetInterpolationToFlat()
 
 # Update the pipeline so that vtkCellLocator finds cells !
-# smooth_loop.Update()
+smooth_loop.Update()
 
 # Visualize
 renderer = vtk.vtkRenderer()
@@ -126,18 +126,23 @@ renderWindowInteractor.SetRenderWindow(renderWindow)
 # Add actors and render
 renderer.AddActor(actor_loop)
 
-renderer.SetBackground(1, 1, 1)  # Background color white
+renderer.SetBackground(0, 0, 0)  # Background color white
 renderWindow.SetSize(800, 800)
 renderWindow.Render()
 renderWindowInteractor.Start()
 
 # %% save object
+
 # writer = vtk.vtkPolyDataWriter()
 # writer.SetInputData(smooth_loop.GetOutput())
-# writer.SetFileName('smooth_dem.vtk')
+# writer.SetFileTypeToBinary()
+# writer.SetFileName('texture.vtk')
 # writer.Update()
 
-writer = vtk.vtkPolyDataWriter()
-writer.SetInputData(smooth_loop.GetOutput())
-writer.SetFileName('texture_lol.vtk')
-writer.Update()
+exporter = vtk.vtkVRMLExporter()
+exporter.SetRenderWindow(renderWindow)
+exporter.SetFileName("cylinders.wrl")
+exporter.Write()
+exporter.Update()
+
+
