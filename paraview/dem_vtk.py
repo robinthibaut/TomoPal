@@ -60,10 +60,6 @@ def dem_local_system(arg):
 
 dem_local = np.array(list(map(dem_local_system, dem_wgs)))  # Convert WGS to local coordinates in meters
 
-cells_struct = np.array([list(np.arange(i * 3, i * 3 + 3)) for i in range(shp[0])])  # Indexes of triangles corners
-
-elev = np.mean(dem_local[:, 2][cells_struct], axis=1)  # Elevation of the middle of each triangle
-
 cells_triangles = [list(np.arange(i * 3, i * 3 + 3)) for i in range(shp[0])]
 
 points = vtk.vtkPoints()
@@ -85,7 +81,6 @@ trianglePolyData.SetPoints(points)
 
 trianglePolyData.SetPolys(triangles)
 
-
 # Clean the polydata so that the edges are shared !
 cleanPolyData = vtk.vtkCleanPolyData()
 cleanPolyData.SetInputData(trianglePolyData)
@@ -105,7 +100,6 @@ actor_loop.GetProperty().SetInterpolationToFlat()
 # Update the pipeline so that vtkCellLocator finds cells !
 # smooth_loop.Update()
 
-
 # Visualize
 renderer = vtk.vtkRenderer()
 renderWindow = vtk.vtkRenderWindow()
@@ -121,8 +115,7 @@ renderWindow.SetSize(800, 800)
 renderWindow.Render()
 renderWindowInteractor.Start()
 
-
 writer = vtk.vtkPolyDataWriter()
-writer.SetInputData(trianglePolyData)
-writer.SetFileName('myloop.vtk')
+writer.SetInputData(smooth_loop.GetOutput())
+writer.SetFileName('mysmoothloop.vtk')
 writer.Update()
