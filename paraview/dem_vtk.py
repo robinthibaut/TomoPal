@@ -29,8 +29,8 @@ geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
 bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
 
-lats = np.linspace(bbox[0][0], bbox[1][0], 50)
-longs = np.linspace(bbox[0][1], bbox[1][1], 50)
+lats = np.linspace(bbox[0][0], bbox[1][0], 100)
+longs = np.linspace(bbox[0][1], bbox[1][1], 100)
 # cs = list(itertools.product(lats, longs))
 xv, yv = np.meshgrid(lats, longs, sparse=False, indexing='xy')
 cs = np.stack((xv, yv), axis=2).reshape((-1, 2))
@@ -78,7 +78,6 @@ trianglePolyData = vtk.vtkPolyData()
 
 # Add the geometry and topology to the polydata
 trianglePolyData.SetPoints(points)
-
 trianglePolyData.SetPolys(triangles)
 
 # Clean the polydata so that the edges are shared !
@@ -90,11 +89,28 @@ smooth_loop = vtk.vtkLoopSubdivisionFilter()
 smooth_loop.SetNumberOfSubdivisions(3)
 smooth_loop.SetInputConnection(cleanPolyData.GetOutputPort())
 
+# The triangulation has texture coordinates generated so we can map
+# a texture onto it.
+tmapper = vtk.vtkTextureMapToPlane()
+tmapper.SetInputConnection(smooth_loop.GetOutputPort())
+
+# We scale the texture coordinate to get some repeat patterns.
+xform = vtk.vtkTransformTextureCoords()
+xform.SetInputConnection(tmapper.GetOutputPort())
+# xform.SetScale(4, 4, 1)
+
+bmpReader = vtk.vtkJPEGReader()
+bmpReader.SetFileName(jp(data_dir, 'bb2c.jpg'))
+atext = vtk.vtkTexture()
+atext.SetInputConnection(bmpReader.GetOutputPort())
+atext.InterpolateOn()
+
 # Create a mapper and actor for smoothed dataset
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInputConnection(smooth_loop.GetOutputPort())
+mapper.SetInputConnection(xform.GetOutputPort())
 actor_loop = vtk.vtkActor()
 actor_loop.SetMapper(mapper)
+actor_loop.SetTexture(atext)
 actor_loop.GetProperty().SetInterpolationToFlat()
 
 # Update the pipeline so that vtkCellLocator finds cells !
@@ -115,7 +131,13 @@ renderWindow.SetSize(800, 800)
 renderWindow.Render()
 renderWindowInteractor.Start()
 
+# %% save object
+# writer = vtk.vtkPolyDataWriter()
+# writer.SetInputData(smooth_loop.GetOutput())
+# writer.SetFileName('smooth_dem.vtk')
+# writer.Update()
+
 writer = vtk.vtkPolyDataWriter()
 writer.SetInputData(smooth_loop.GetOutput())
-writer.SetFileName('mysmoothloop.vtk')
+writer.SetFileName('texture_lol.vtk')
 writer.Update()
