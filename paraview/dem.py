@@ -31,8 +31,8 @@ def dem():
 
     bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
 
-    lats = np.linspace(bbox[0][0], bbox[1][0], 50)
-    longs = np.linspace(bbox[0][1], bbox[1][1], 50)
+    lats = np.linspace(bbox[0][0], bbox[1][0], 250)
+    longs = np.linspace(bbox[0][1], bbox[1][1], 250)
     # cs = list(itertools.product(lats, longs))
     xv, yv = np.meshgrid(lats, longs, sparse=False, indexing='xy')
     cs = np.stack((xv, yv), axis=2).reshape((-1, 2))
