@@ -114,7 +114,7 @@ actor_loop.SetTexture(atext)
 actor_loop.GetProperty().SetInterpolationToFlat()
 
 # Update the pipeline so that vtkCellLocator finds cells !
-smooth_loop.Update()
+# smooth_loop.Update()
 
 # Visualize
 renderer = vtk.vtkRenderer()
@@ -133,16 +133,35 @@ renderWindowInteractor.Start()
 
 # %% save object
 
+# wxml = vtk.vtkXMLPolyDataWriter()
+# wxml.SetInputData(mapper.GetInput())
+# # writer.SetFileTypeToBinary()
+# wxml.SetFileName('texture_xml.vtk')
+# wxml.Update()
+
+# texture = actor_loop.GetTexture().GetInput()
+# h = texture.GetPointData().GetScalars()
+
+# surface = mapper.GetInput()
+# surface.GetPointData().AddArray(h)
+
 # writer = vtk.vtkPolyDataWriter()
-# writer.SetInputData(smooth_loop.GetOutput())
+# writer.SetInputData(surface)
 # writer.SetFileTypeToBinary()
 # writer.SetFileName('texture.vtk')
 # writer.Update()
 
-exporter = vtk.vtkVRMLExporter()
-exporter.SetRenderWindow(renderWindow)
-exporter.SetFileName("cylinders.wrl")
-exporter.Write()
-exporter.Update()
+writer = vtk.vtkPolyDataWriter()
+writer.SetInputData(smooth_loop.GetOutput())
+writer.SetFileTypeToBinary()
+writer.SetFileName('texture_i.vtk')
+writer.Update()
+
+# exporter = vtk.vtkVRMLExporter()
+# exporter.SetRenderWindow(renderWindow)
+# exporter.SetFileName("cylinders.wrl")
+# exporter.Write()
+# exporter.Update()
+
 
 

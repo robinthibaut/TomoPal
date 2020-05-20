@@ -1,5 +1,0 @@
-numpy~=1.18.1
-meshio~=4.0.10
-geographiclib~=1.50
-rasterio~=1.1.0
-scipy~=1.4.1
