@@ -154,7 +154,7 @@ renderWindowInteractor.Start()
 writer = vtk.vtkPolyDataWriter()
 writer.SetInputData(smooth_loop.GetOutput())
 writer.SetFileTypeToBinary()
-writer.SetFileName(jp(data_dir, 'vtk', 'texture.vtk')
+writer.SetFileName(jp(data_dir, 'vtk', 'texture.vtk'))
 writer.Update()
 
 # exporter = vtk.vtkVRMLExporter()
