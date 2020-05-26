@@ -28,15 +28,15 @@ def elevation(lat_, lon_):
 
 geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 # %% Define bounds of polygon in which to build DEM
-
 bbox = [[11.147984, 108.422479], [11.284767, 108.602519]]
 
 lats = np.linspace(bbox[0][0], bbox[1][0], 100)
 longs = np.linspace(bbox[0][1], bbox[1][1], 100)
-# cs = list(itertools.product(lats, longs))
+
+# Define meshgrid whose vertices will be used to triangulate the area
 xv, yv = np.meshgrid(lats, longs, sparse=False, indexing='xy')
-cs = np.stack((xv, yv), axis=2).reshape((-1, 2))
-dem_raw = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])
+cs = np.stack((xv, yv), axis=2).reshape((-1, 2))  # Stack coordinates
+dem_raw = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])  # Extract elevation
 
 
 def dem_local_system(arg):
@@ -64,23 +64,25 @@ aPolyData.SetPoints(points)
 
 aCellArray = vtk.vtkCellArray()
 
+# Start triangulation - define boundary
 boundary = vtk.vtkPolyData()
 boundary.SetPoints(aPolyData.GetPoints())
 boundary.SetPolys(aCellArray)
+# Perform Delaunay 2D
 delaunay = vtk.vtkDelaunay2D()
 delaunay.SetInputData(aPolyData)
 delaunay.SetSourceData(boundary)
 
 delaunay.Update()
 
-# Create a polydata object
+# Extract the polydata object from the triangulation = all the triangles
 trianglePolyData = delaunay.GetOutput()
 
 # Clean the polydata so that the edges are shared !
 cleanPolyData = vtk.vtkCleanPolyData()
 cleanPolyData.SetInputData(trianglePolyData)
 
-# Use a filter to smooth the data (will add triangles and smooth)
+# Use a filter to smooth the data (will add triangles and smooth) - default parameters
 smooth_loop = vtk.vtkLoopSubdivisionFilter()
 smooth_loop.SetNumberOfSubdivisions(3)
 smooth_loop.SetInputConnection(cleanPolyData.GetOutputPort())
@@ -127,39 +129,9 @@ renderWindow.SetSize(800, 800)
 renderWindow.Render()
 renderWindowInteractor.Start()
 
-# Save
+# Save Poluydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
 writer = vtk.vtkPolyDataWriter()
 writer.SetInputData(smooth_loop.GetOutput())
 writer.SetFileTypeToBinary()
 writer.SetFileName(jp(vtk_dir, 'texture.vtk'))
 writer.Update()
-
-# %% save object
-
-# wxml = vtk.vtkXMLPolyDataWriter()
-# wxml.SetInputData(mapper.GetInput())
-# # writer.SetFileTypeToBinary()
-# wxml.SetFileName('texture_xml.vtk')
-# wxml.Update()
-
-# texture = actor_loop.GetTexture().GetInput()
-# h = texture.GetPointData().GetScalars()
-
-# surface = mapper.GetInput()
-# surface.GetPointData().AddArray(h)
-
-# writer = vtk.vtkPolyDataWriter()
-# writer.SetInputData(surface)
-# writer.SetFileTypeToBinary()
-# writer.SetFileName('texture.vtk')
-# writer.Update()
-
-
-# exporter = vtk.vtkVRMLExporter()
-# exporter.SetRenderWindow(renderWindow)
-# exporter.SetFileName("cylinders.wrl")
-# exporter.Write()
-# exporter.Update()
-
-
-#  Copyright (c) 2020. Robin Thibaut, Ghent University
