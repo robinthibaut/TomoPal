@@ -6,9 +6,9 @@ import os
 from functools import reduce
 from os.path import join as jp
 
-import meshio
 import numpy as np
 import rasterio
+import vtk
 from geographiclib.geodesic import Geodesic
 
 
@@ -21,9 +21,9 @@ def read_file(file=None, header=0):
 
 def order_vertices(vertices):
     """
-    Paraview expects vertices in a particular order, with the origin at the bottom left corner.
-    :param vertices: (x, y) coordinates of the polygon vertices
-    :return:
+    Paraview expects vertices in a particular order for Quad object, with the origin at the bottom left corner.
+    :param vertices: (x, y) coordinates of the quad vertices
+    :return: Sorted vertices
     """
     # Compute center of vertices
     center = \
@@ -129,7 +129,7 @@ def conversion():
 
     # %% Set in local coordinate system
 
-    lat_origin, long_origin = 11.207775, 108.529248
+    lat_origin, long_origin = 11.207775, 108.529248  # Arbitrary origin
 
     def local_system(lat_p, lon_p):
         """
@@ -144,23 +144,36 @@ def conversion():
         return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi))
 
     blocks_local = np.copy(blocks_wgs)
-
+    # Update coordinates
     for i in range(len(blocks_wgs)):
         x, y = local_system(blocks_local[i, 0], blocks_local[i, 1])
         blocks_local[i, 0], blocks_local[i, 1] = x, y
 
     # %% VTK file creation
 
-    # Index of vertices
-    cells = [("quad", np.array([list(np.arange(i * 4, i * 4 + 4))])) for i in range(shp[0])]
+    # Initiate points and ugrid
+    points = vtk.vtkPoints()
+    ugrid = vtk.vtkUnstructuredGrid()
 
-    # Write file
-    meshio.write_points_cells(
-        ".\\vtk\\{}.vtk".format(name),
-        blocks_local,
-        cells,
-        cell_data={'res': rho}
-    )
+    for e, b in enumerate(blocks_local):
+        points.InsertNextPoint(b)
+
+    # Insert cells in UGrid
+    [ugrid.InsertNextCell(vtk.VTK_QUAD, 4, list(range(e*4, e*4+4))) for e in range(len(blocks))]
+    ugrid.SetPoints(points)  # Set points
+
+    # Initiate array and give it a name
+    resArray = vtk.vtkDoubleArray()
+    resArray.SetName("res")
+
+    [resArray.InsertNextValue(r) for r in rho]
+    ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
+
+    # Save grid
+    writer = vtk.vtkXMLUnstructuredGridWriter()
+    writer.SetInputData(ugrid)
+    writer.SetFileName(".\\vtk\\{}.vtu".format(name))
+    writer.Write()
 
 
 if __name__ == '__main__':

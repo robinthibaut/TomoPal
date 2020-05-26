@@ -129,7 +129,7 @@ renderWindow.SetSize(800, 800)
 renderWindow.Render()
 renderWindowInteractor.Start()
 
-# Save Poluydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
+# Save Polydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
 writer = vtk.vtkPolyDataWriter()
 writer.SetInputData(smooth_loop.GetOutput())
 writer.SetFileTypeToBinary()
