@@ -37,11 +37,10 @@ def order_vertices(vertices):
     return np.array(so)
 
 
-def conversion():
+def conversion(name):
 
     # Set directories
     cwd = os.getcwd()
-    name = '22'
     data_dir = jp(cwd, 'data')
     coord_file = jp(data_dir, name, 'p{}.dat'.format(name))
     ep_file = jp(data_dir, name, 'end_points.txt')
@@ -49,9 +48,7 @@ def conversion():
 
     blocks = read_file(coord_file)  # Raw mesh info
 
-    blocks2d_flat = blocks[:, 1:-1]  # Flat list of polygon vertices
-
-    # blocks2d_flat = blocks[:, 1:-3]  # Flat list of polygon vertices
+    blocks2d_flat = blocks[:, 1:9]  # Flat list of polygon vertices
 
     rho = blocks[:, -1]  # Resistivity
 
@@ -175,6 +172,8 @@ def conversion():
     writer.SetFileName(".\\vtk\\{}.vtu".format(name))
     writer.Write()
 
+    return 0
+
 
 if __name__ == '__main__':
-    conversion()
+    conversion('28')
