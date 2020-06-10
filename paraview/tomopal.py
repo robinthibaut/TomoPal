@@ -2,6 +2,7 @@
 
 import math
 import operator
+import os
 from functools import reduce
 
 import numpy as np
@@ -38,17 +39,23 @@ def order_vertices(vertices):
 
 class Transformation:
 
-    def __init__(self, file, bounds, dem=None, origin=None):
+    def __init__(self, file, bounds, dem=None, origin=None, name=None):
         """
         :param file: Results file containing block coordinates and associated values
         :param bounds: tuple: ((lat1, lon1), (lat2, lon2))
         :param dem: Digital Elevation Model file
         :param origin: Coordinates of the origin of the map (lat, lon)
+        :param name: str: Name of the output file
         """
         self.block_file = file
         self.bounds = bounds
         self.elevation_file = dem
         self.origin = origin
+
+        if name is None:
+            self.name = os.path.splitext(os.path.basename(self.block_file))[0]
+        else:
+            self.name = name
 
     def conversion(self):
 
@@ -196,9 +203,15 @@ class Transformation:
         ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
 
         # Save grid
+        output_dir = os.path.join(os.getcwd(), 'vtk')
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        vtu_file = os.path.join(output_dir, f'{self.name}.vtu')
+
         writer = vtk.vtkXMLUnstructuredGridWriter()
         writer.SetInputData(ugrid)
-        writer.SetFileName(".\\vtk\\{}.vtu".format(name))
+        writer.SetFileName(vtu_file)
         writer.Write()
 
         return 0
