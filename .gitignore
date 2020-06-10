@@ -1,3 +1,7 @@
 /tomopal/vtk/
 /tomopal/misc/
 /tomopal/data/
+/tomopal/misc/coordinates_conversion.py
+/tomopal/misc/dem.py
+/tomopal/misc/dem_vtk.py
+/tomopal/misc/dem_vtk_full.py
