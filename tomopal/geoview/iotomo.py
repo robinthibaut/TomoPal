@@ -39,13 +39,14 @@ def order_vertices(vertices):
 
 class Transformation:
 
-    def __init__(self, file, bounds, dem=None, origin=None, name=None):
+    def __init__(self, file, bounds, dem=None, origin=None, name=None, working_space=None):
         """
         :param file: Results file containing block coordinates and associated values
         :param bounds: tuple: ((lat1, lon1), (lat2, lon2))
         :param dem: Digital Elevation Model file
         :param origin: Coordinates of the origin of the map (lat, lon)
         :param name: str: Name of the output file
+        :param working_space: str: Path to the working directory
         """
         self.block_file = file
         self.bounds = bounds
@@ -57,7 +58,11 @@ class Transformation:
         else:
             self.name = name
 
-        self.output_dir = os.path.join(os.getcwd(), 'vtk')
+        if working_space is None:
+            self.output_dir = os.path.join(os.getcwd(), 'vtk')
+        else:
+            self.output_dir = os.path.join(working_space, 'vtk')
+
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
@@ -66,7 +71,7 @@ class Transformation:
         blocks = read_file(self.block_file)  # Raw mesh info
         # TODO: Optimize parse - implement for several output (res, ip..)
         blocks2d_flat = blocks[:, 1:9]  # Flat list of polygon vertices
-        rho = blocks[:, -1]  # Resistivity
+        rho = blocks[:, 9:]  # Values associated to each block
 
         # Load profile bounds, must be in the correct format:
         # [[ lat1, lon1], [lat2, lon2]]
