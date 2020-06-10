@@ -39,7 +39,7 @@ def order_vertices(vertices):
 
 class Transformation:
 
-    def __init__(self, file, bounds, dem=None, origin=None, name=None, working_space=None):
+    def __init__(self, file=None, bounds=None, dem=None, origin=None, name=None, working_space=None):
         """
         :param file: Results file containing block coordinates and associated values
         :param bounds: tuple: ((lat1, lon1), (lat2, lon2))
@@ -50,7 +50,8 @@ class Transformation:
         """
         self.block_file = file
 
-        self.bounds = np.array(bounds)
+        if bounds is not None:
+            self.bounds = np.array(bounds)
 
         self.elevation_file = dem
         self.origin = origin
