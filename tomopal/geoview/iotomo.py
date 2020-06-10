@@ -49,7 +49,9 @@ class Transformation:
         :param working_space: str: Path to the working directory
         """
         self.block_file = file
-        self.bounds = bounds
+
+        self.bounds = np.array(bounds)
+
         self.elevation_file = dem
         self.origin = origin
 
@@ -75,7 +77,6 @@ class Transformation:
 
         # Load profile bounds, must be in the correct format:
         # [[ lat1, lon1], [lat2, lon2]]
-        bounds = self.bounds  # Flip only in this case as the format is incorrect.
 
         # Elevation data
         tif = 0
@@ -136,7 +137,7 @@ class Transformation:
         geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
         # Create an 'InverseLine' bounded by the profile endpoints.
-        profile = geod.InverseLine(bounds[0, 0], bounds[0, 1], bounds[1, 0], bounds[1, 1])
+        profile = geod.InverseLine(self.bounds[0, 0], self.bounds[0, 1], self.bounds[1, 0], self.bounds[1, 1])
 
         def lat_lon(distance):
             """
@@ -205,11 +206,11 @@ class Transformation:
         ugrid.SetPoints(points)  # Set points
 
         # Initiate array and give it a name
-        resArray = vtk.vtkDoubleArray()
-        resArray.SetName("res")
-
-        [resArray.InsertNextValue(r) for r in rho]
-        ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
+        for e in range(rho.shape[1]):
+            resArray = vtk.vtkDoubleArray()
+            resArray.SetName(f'val{e}')
+            [resArray.InsertNextValue(r) for r in rho[:, e]]
+            ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
 
         # Save grid
 
