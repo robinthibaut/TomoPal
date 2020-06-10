@@ -1,3 +1,4 @@
+.gitignore
 /tomopal/vtk/
 /tomopal/misc/*
 /tomopal/data/
