@@ -217,23 +217,39 @@ class Transformation:
 
         return 0
 
-    def dem(self, bounding_box, n_x=100, n_y=100):
+    def dem(self, dem_file, bounding_box, n_x=100, n_y=100):
         """
-
+        :param dem_file: Path to dem file
         :param bounding_box: tuple: Bounding box (rectangle) of the DEM ((lat1, long1), (lat2, long2))
         :param n_x: int: Number of cells in x direction (longitude)
         :param n_y: int: Number of cells in y direction (latitude)
         :return:
         """
+        # TODO: add more DEM files input options
 
-        # Load tif file
-        dataset = rasterio.open(tif_file)
-        # Elevation data:
-        r = dataset.read(1)
+        if '.tif' in dem_file.lower():
+            # Load tif file
+            dataset = rasterio.open(dem_file)
+            # Elevation data:
+            r = dataset.read(1)
 
-        def elevation(lat_, lon_):
-            idx = dataset.index(lon_, lat_)
-            return r[idx]
+            def elevation(lat_, lon_):
+                idx = dataset.index(lon_, lat_)
+                return r[idx]
+        else:  # Expects (lat, lon, elev) data file
+            dataset = read_file(dem_file)
+
+            points = dataset[:, :2]
+            values = dataset[:, -1]
+
+            def elevation(lat_, lon_):
+                """Inverse Square Distance"""
+                d = np.sqrt((lon_ - points[:, 1]) ** 2 + (lat_ - points[:, 0]) ** 2)
+                if d.min() > 0:
+                    v = np.sum(values * (1 / d ** 2) / np.sum(1 / d ** 2))
+                    return v
+                else:
+                    return values[d.argmin()]
 
         geod = Geodesic.WGS84  # define the WGS84 ellipsoid
         # %% Define bounds of polygon in which to build DEM
