@@ -123,11 +123,11 @@ renderWindowInteractor.SetRenderWindow(renderWindow)
 
 # Add actors and render
 renderer.AddActor(actor_loop)
-
-renderer.SetBackground(0, 0, 0)  # Background color white
-renderWindow.SetSize(800, 800)
-renderWindow.Render()
-renderWindowInteractor.Start()
+#
+# renderer.SetBackground(0, 0, 0)  # Background color white
+# renderWindow.SetSize(800, 800)
+# renderWindow.Render()
+# renderWindowInteractor.Start()
 
 # Save Polydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
 writer = vtk.vtkPolyDataWriter()

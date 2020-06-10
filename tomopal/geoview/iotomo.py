@@ -259,7 +259,7 @@ class Transformation:
 
         geod = Geodesic.WGS84  # define the WGS84 ellipsoid
         # %% Define bounds of polygon in which to build DEM
-        bbox = bounding_box
+        bbox = np.array(bounding_box)
 
         lats = np.linspace(bbox[0][0], bbox[1][0], n_y)
         longs = np.linspace(bbox[0][1], bbox[1][1], n_x)
@@ -315,6 +315,8 @@ class Transformation:
         smooth_loop = vtk.vtkLoopSubdivisionFilter()
         smooth_loop.SetNumberOfSubdivisions(3)
         smooth_loop.SetInputConnection(cleanPolyData.GetOutputPort())
+
+        smooth_loop.Update()
 
         # Save Polydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
         writer = vtk.vtkPolyDataWriter()
