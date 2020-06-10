@@ -11,8 +11,8 @@ from geographiclib.geodesic import Geodesic
 
 # %% Set directories
 cwd = os.getcwd()
-data_dir = jp(cwd, 'paraview', 'data')
-vtk_dir = jp(cwd, 'paraview', 'vtk')
+data_dir = jp(cwd, 'tomopal', 'data')
+vtk_dir = jp(cwd, 'tomopal', 'vtk')
 tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
 # Load tif file

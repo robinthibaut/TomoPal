@@ -12,7 +12,7 @@ from scipy.spatial import Delaunay
 
 # %% Set directories
 cwd = os.getcwd()
-data_dir = jp(cwd, 'paraview', 'data')
+data_dir = jp(cwd, 'tomopal', 'data')
 tif_file = jp(data_dir, "n11_e108_1arc_v3.tif")
 
 # Load tif file
