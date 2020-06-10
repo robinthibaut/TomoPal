@@ -73,8 +73,8 @@ class Transformation:
         bounds = self.bounds  # Flip only in this case as the format is incorrect.
 
         # Elevation data
+        tif = 0
         if self.elevation_file is not None:
-            tif = 0
             if '.tif' in self.elevation_file.lower():  # If tif file
                 tif = 1
                 # Load tif file
@@ -316,3 +316,5 @@ class Transformation:
         writer.SetFileTypeToBinary()
         writer.SetFileName(os.path.join(self.output_dir, 'dem.vtk'))
         writer.Update()
+
+        return 0
