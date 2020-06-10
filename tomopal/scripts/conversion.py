@@ -25,6 +25,7 @@ if __name__ == '__main__':
         # Geographic tomography bounds (start point, end point)
         with open(os.path.join(cwd, 'data', 'mycoordinates.txt'), 'r') as cf:
             pc = np.array([line.split() for line in cf.readlines()])
+        # Load tomography bounds
         p_bounds = np.flip(np.array(pc[np.where(f'P{f}' in pc[:, 0])][0][1:].astype(np.float)).reshape(-1, 2), axis=1)
 
         # Initiate transformation object
