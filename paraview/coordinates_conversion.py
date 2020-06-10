@@ -65,7 +65,6 @@ def conversion(name):
     blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
     # %% Order vertices in each block to correspond to VTK requirements
-    # This might actually not be necessary for meshio.
     blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' vertices are now correctly ordered
     # %% Add a new axis to make coordinates 3-D
     # We have now the axis along the profile line and the depth.
