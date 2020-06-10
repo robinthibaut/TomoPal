@@ -57,6 +57,10 @@ class Transformation:
         else:
             self.name = name
 
+        self.output_dir = os.path.join(os.getcwd(), 'vtk')
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+
     def conversion(self):
 
         blocks = read_file(self.block_file)  # Raw mesh info
@@ -203,11 +207,8 @@ class Transformation:
         ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
 
         # Save grid
-        output_dir = os.path.join(os.getcwd(), 'vtk')
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
 
-        vtu_file = os.path.join(output_dir, f'{self.name}.vtu')
+        vtu_file = os.path.join(self.output_dir, f'{self.name}.vtu')
 
         writer = vtk.vtkXMLUnstructuredGridWriter()
         writer.SetInputData(ugrid)
@@ -215,3 +216,87 @@ class Transformation:
         writer.Write()
 
         return 0
+
+    def dem(self, bounding_box, n_x=100, n_y=100):
+        """
+
+        :param bounding_box: tuple: Bounding box (rectangle) of the DEM ((lat1, long1), (lat2, long2))
+        :param n_x: int: Number of cells in x direction (longitude)
+        :param n_y: int: Number of cells in y direction (latitude)
+        :return:
+        """
+
+        # Load tif file
+        dataset = rasterio.open(tif_file)
+        # Elevation data:
+        r = dataset.read(1)
+
+        def elevation(lat_, lon_):
+            idx = dataset.index(lon_, lat_)
+            return r[idx]
+
+        geod = Geodesic.WGS84  # define the WGS84 ellipsoid
+        # %% Define bounds of polygon in which to build DEM
+        bbox = bounding_box
+
+        lats = np.linspace(bbox[0][0], bbox[1][0], n_y)
+        longs = np.linspace(bbox[0][1], bbox[1][1], n_x)
+
+        # Define meshgrid whose vertices will be used to triangulate the area
+        xv, yv = np.meshgrid(lats, longs, sparse=False, indexing='xy')
+        cs = np.stack((xv, yv), axis=2).reshape((-1, 2))  # Stack coordinates
+        dem_raw = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])  # Extract elevation
+
+        lat_origin, long_origin = self.origin
+
+        def dem_local_system(arg):
+            """
+            Given an origin, converts the WGS84 coordinates into meters around that point.
+            :param arg: [lat (decimal degree wgs84), lon (decimal degree wgs84), elev (m)]
+            :return:
+            """
+            line = geod.InverseLine(lat_origin, long_origin, arg[0], arg[1])
+            azi = line.azi1
+            dis = line.s13
+            return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi)), arg[2]
+
+        dem_local = np.array(list(map(dem_local_system, dem_raw)))  # Convert WGS to local coordinates in meters
+
+        # %%
+        points = vtk.vtkPoints()
+        [points.InsertNextPoint(c) for c in dem_local]
+
+        aPolyData = vtk.vtkPolyData()
+        aPolyData.SetPoints(points)
+
+        aCellArray = vtk.vtkCellArray()
+
+        # Start triangulation - define boundary
+        boundary = vtk.vtkPolyData()
+        boundary.SetPoints(aPolyData.GetPoints())
+        boundary.SetPolys(aCellArray)
+        # Perform Delaunay 2D
+        delaunay = vtk.vtkDelaunay2D()
+        delaunay.SetInputData(aPolyData)
+        delaunay.SetSourceData(boundary)
+
+        delaunay.Update()
+
+        # Extract the polydata object from the triangulation = all the triangles
+        trianglePolyData = delaunay.GetOutput()
+
+        # Clean the polydata so that the edges are shared !
+        cleanPolyData = vtk.vtkCleanPolyData()
+        cleanPolyData.SetInputData(trianglePolyData)
+
+        # Use a filter to smooth the data (will add triangles and smooth) - default parameters
+        smooth_loop = vtk.vtkLoopSubdivisionFilter()
+        smooth_loop.SetNumberOfSubdivisions(3)
+        smooth_loop.SetInputConnection(cleanPolyData.GetOutputPort())
+
+        # Save Polydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
+        writer = vtk.vtkPolyDataWriter()
+        writer.SetInputData(smooth_loop.GetOutput())
+        writer.SetFileTypeToBinary()
+        writer.SetFileName(os.path.join(self.output_dir, 'dem.vtk'))
+        writer.Update()
