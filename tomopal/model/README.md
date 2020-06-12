@@ -25,6 +25,6 @@ mm = ModelMaker(blocks=blocks, values_log=1, bck=100)
 my_model = rfwm.final_results
 ```
 
-![Initialization](tomopal/base/illu/blank.png)
+![Initialization](illu/blank.png)
 
-![Assigning values to the grid](tomopal/base/illu/illu.png)
+![Assigning values to the grid](illu/illu.png)
