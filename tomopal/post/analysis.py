@@ -27,12 +27,12 @@ def display(nor_rec):
 
 
 def hist(nor_rec, quantile, bins):
-    diff = pd.DataFrame(data=np.abs(np.subtract(nor_rec[:, 0], nor_rec[:, 1])), columns=['diff'])
+    diff = pd.DataFrame(data=np.abs(np.subtract(nor_rec[:, 0], nor_rec[:, 1])/nor_rec[:, 0]), columns=['diff'])
     print(diff.describe())
     vt = diff.quantile(quantile).values[0]
     diffT = diff[diff['diff'] <= vt]
     diffT.hist(bins=bins)
-    plt.xlabel('Reciprocal error (ohm)', weight='bold', size=12)
+    plt.xlabel('Reciprocal error (%)', weight='bold', size=12)
     plt.ylabel('Count', weight='bold', size=12)
     plt.title('Histogram of reciprocal error', weight='bold', size=12)
     plt.show()
