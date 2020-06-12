@@ -1,4 +1,4 @@
-#TomoPal
+# TomoPal
 A package to pre-process, visualize and post-process your Electrical Resistivity Tomographies !
 All modules are built in the same ecosystem and are made to interact with each other.
 
