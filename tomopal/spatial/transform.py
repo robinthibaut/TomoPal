@@ -60,14 +60,6 @@ class Transformation:
         else:
             self.name = name
 
-        if working_space is None:
-            self.output_dir = os.path.join(os.getcwd(), 'vtk')
-        else:
-            self.output_dir = os.path.join(working_space, 'vtk')
-
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
-
     def conversion(self):
 
         blocks = read_file(self.block_file)  # Raw mesh info
@@ -192,7 +184,7 @@ class Transformation:
             x, y = local_system(blocks_local[i, 0], blocks_local[i, 1])
             blocks_local[i, 0], blocks_local[i, 1] = x, y
 
-        return blocks_local
+        return blocks_local, rho
 
     def dem(self, dem_file, bounding_box, n_x=100, n_y=100):
         """

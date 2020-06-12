@@ -35,7 +35,7 @@ def order_vertices(vertices):
     return np.array(so)
 
 
-class ERT_VTK:
+class TomoVTK:
 
     def __init__(self, output_dir, name=None):
 
