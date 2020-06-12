@@ -1,5 +1,6 @@
-numpy
-rasterio
-vtk
-geographiclib
-scipy
+numpy~=1.18.1
+rasterio~=1.1.0
+vtk~=8.1.2
+geographiclib~=1.50
+scipy~=1.4.1
+pandas~=1.0.3
