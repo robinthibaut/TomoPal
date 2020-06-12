@@ -12,7 +12,7 @@ if __name__ == '__main__':
     files = ['28']
     dem_ = os.path.join(cwd, 'data', 'n11_e108_1arc_v3.tif')
     # VTK output dir
-    output_dir = os.path.join(cwd, 'vtk')
+    output_dir = os.path.join(os.getcwd(), 'vtk')
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -25,12 +25,12 @@ if __name__ == '__main__':
     demio = Transformation(origin=origin)
     # Geographic bounds for DEM
     dem_bbox = ((11.147984, 108.422479), (11.284767, 108.602519))
-    dem_local = demio.dem(dem_file=dem_, bounding_box=dem_bbox, n_x=100, n_y=100)
-    tv.dem_to_vtk(dem_local)
+    # dem_local = demio.dem(dem_file=dem_, bounding_box=dem_bbox, n_x=100, n_y=100)
+    # tv.dem_to_vtk(dem_local)
 
     for f in files:
         # Data file containing blocks geometry and values
-        data_ = os.path.join(cwd, 'data', f, f'{f}.dat')
+        data_ = os.path.join(cwd, 'data', f, f'p{f}.dat')
 
         # Geographic tomography bounds (start point, end point)
         with open(os.path.join(cwd, 'data', 'mycoordinates.txt'), 'r') as cf:
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         # Perform conversion
         blocks, values = tio.conversion()
-        tv.grid_to_vtk(blocks, values, values_names=['res', 'sens'])
+        tv.grid_to_vtk(blocks=blocks, values=values, values_names=['sens', 'res'])
 
 
 

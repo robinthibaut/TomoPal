@@ -55,7 +55,7 @@ class Transformation:
         self.elevation_file = dem
         self.origin = origin
 
-        if name is None:
+        if name is None and file is not None:
             self.name = os.path.splitext(os.path.basename(self.block_file))[0]
         else:
             self.name = name
