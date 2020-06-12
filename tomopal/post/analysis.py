@@ -16,10 +16,18 @@ def read_res(file):
     return data
 
 
+def export(file, normal_reciprocal):
+    np.savetxt(file, normal_reciprocal)
+
+
 def display(nor_rec):
     # Plot
     plt.plot(nor_rec[:, 0], nor_rec[:, 1], 'ko')
     plt.show()
+
+
+def hist(nor_rec):
+    pass
 
 
 class Reciprocal:
@@ -70,6 +78,17 @@ if __name__ == '__main__':
 
     ro = Reciprocal(fN, fR, stack_tres=.5)
 
-    diff = ro.parse()
+    nr = ro.parse()
 
-    display(diff)
+    diff = pd.DataFrame(data=np.abs(np.subtract(nr[:, 0], nr[:, 1])), columns=['diff'])
+    print(diff.describe())
+    vt = diff.quantile(.99).values[0]
+    diffT = diff[diff['diff'] <= vt]
+    diffT.hist(bins=20)
+    plt.xlabel('Reciprocal error (ohm)', weight='bold', size=12)
+    plt.ylabel('Count', weight='bold', size=12)
+    plt.title('Histogram of reciprocal error', weight='bold', size=12)
+    plt.show()
+
+
+    display(nr)
