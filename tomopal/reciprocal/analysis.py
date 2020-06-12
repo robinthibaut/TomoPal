@@ -4,6 +4,8 @@ import os
 import re
 from collections import Counter
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 cwd = os.path.dirname(os.getcwd())
@@ -22,19 +24,31 @@ def read_res(file):
 
 
 pN = read_res(fN)
-pN.rohm *= -1
-abmnN = pN[['ax', 'bx', 'mx', 'nx', 'rohm']]
-
 pR = read_res(fR)
+
+# Filter stack error
+ts = .5
+pN = pN[pN['var'] < ts]
+pR = pR[pR['var'] < ts]
+
+# Extract normal and reciprocal subsets
+abmnN = pN[['ax', 'bx', 'mx', 'nx', 'rohm']]
 abmnR = pR[['ax', 'bx', 'mx', 'nx', 'rohm']]
 
+# Concatenate them
 nr = pd.concat([abmnN, abmnR])
 
 # To use a dict as a key you need to turn it into something that may be hashed first. If the dict you wish to use as
 # key consists of only immutable values, you can create a hashable representation of it with frozenset
 nr['id'] = nr.apply(lambda row: frozenset(Counter(row[['ax', 'bx', 'mx', 'nx']]).keys()), axis=1)
 
-df1 = nr.groupby('id')['rohm'].apply(list).reset_index(name='rhos')
+# Group by same identifiers = same electrode pairs
+df1 = nr.groupby('id')['rohm'].apply(np.array).reset_index(name='rhos')
 
-
-# https://stackoverflow.com/questions/29464234/compare-python-pandas-dataframes-for-matching-rows
+# Extract list containing res values [N, R]
+rhos = [d for d in df1.rhos.values if len(d) == 2]
+# Flatten and reshape
+flat_list = np.array([item for sublist in rhos for item in sublist]).reshape((-1, 2))
+# Plot
+plt.plot(flat_list[:, 0], flat_list[:, 1], 'ko')
+plt.show()
