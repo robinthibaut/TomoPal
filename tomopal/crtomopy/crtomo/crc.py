@@ -74,19 +74,15 @@ def write_data(data=None,
     """
 
     Given the arguments below, writes crtomo-readable file.
-
-    :param nelem: number of cells
-    :param electrode_spacing: electrode spacing
     :param data: np.array containing A B M N locations in METERS, RESISTANCE, and IP (mrad)
     :param data_op_file: name of the output data file
-    :param m2p Factor to convert IP data to mrad
     :return: nothing
 
     """
 
     crdata = np.copy(data)
 
-    crdataf = str(len(crdata)) + '\n' + '\n'.join([' '.join(list(map(str, l))) for l in crdata])
+    crdataf = str(len(crdata)) + '\n' + '\n'.join([' '.join(list(map(str, line))) for line in crdata])
 
     with open(data_op_file, 'w') as ndf:
         ndf.write(crdataf)
@@ -133,6 +129,7 @@ def mtophase(ncycles=0,
 
 
 def crtomo_file_shortener(f1, f2):
+    """CRTOMO cannot deal with long folder path, especially not with spaces within it..."""
     fs = f2
 
     if f2:  # If file is different than None
@@ -199,8 +196,8 @@ def dirmaker(dirp):
     try:
         if not os.path.exists(dirp):
             os.makedirs(dirp)
-    except:
-        pass
+    except Exception as e:
+        print(e)
 
 
 def deldir(dirp):
@@ -229,7 +226,6 @@ def mesh_geometry(mesh_file):
     """
 
     # Reading mesh results
-    # msh = datread(mesh_file) # Deprecated
 
     with open(mesh_file, 'r') as fr:
         msh = np.array([list(map(float, l.replace('T', '').split())) for l in fr.readlines()])
@@ -269,7 +265,7 @@ def mesh_geometry(mesh_file):
     return ncol, nlin, nelem, blocks, centerxy
 
 
-def Neighbourgs(abcd, h):
+def neighbor(abcd, h):
     """
 
     Function to fill the final mesh file.
@@ -453,8 +449,8 @@ class Crtomo:
         try:
             if not os.path.exists(mmdir):
                 os.makedirs(mmdir)
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
         os.chdir(self.mesh_dir)
         sp.call([self.mesh_exe])  # Run
@@ -504,7 +500,7 @@ class Crtomo:
 
         print('neighbourg process begins, there are {} elements'.format(nelem))
 
-        adji = [Neighbourgs(adj, i) for i in range(nelem)]
+        adji = [neighbor(adj, i) for i in range(nelem)]
 
         print('neighbourg process over')
 
@@ -668,6 +664,7 @@ class Crtomo:
         self.f3 = fdi3  # F3
         fdi3 = crtomo_file_shortener(self.crtomo_exe, fdi3)
 
+        # TODO: convert this to 'f' formatted text !
         template = """***Files****
 {0}
 {1}
@@ -781,8 +778,8 @@ class Crtomo:
                 with open(self.iso_f1, 'w') as md:
                     md.write(isodat)
                     md.close()
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
         print('starting Crtomo')
 
@@ -799,8 +796,8 @@ class Crtomo:
             try:
                 fname = path_leaf(f)
                 copyfile(f, jp(pfn, fname))
-            except:
-                pass
+            except Exception as e:
+                print(e)
 
         sp.call([self.crtomo_exe])  # Runs the exe
 
