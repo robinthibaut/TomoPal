@@ -26,8 +26,16 @@ def display(nor_rec):
     plt.show()
 
 
-def hist(nor_rec):
-    pass
+def hist(nor_rec, quantile, bins):
+    diff = pd.DataFrame(data=np.abs(np.subtract(nor_rec[:, 0], nor_rec[:, 1])), columns=['diff'])
+    print(diff.describe())
+    vt = diff.quantile(quantile).values[0]
+    diffT = diff[diff['diff'] <= vt]
+    diffT.hist(bins=bins)
+    plt.xlabel('Reciprocal error (ohm)', weight='bold', size=12)
+    plt.ylabel('Count', weight='bold', size=12)
+    plt.title('Histogram of reciprocal error', weight='bold', size=12)
+    plt.show()
 
 
 class Reciprocal:
@@ -70,25 +78,16 @@ class Reciprocal:
 
 
 if __name__ == '__main__':
+    # Directories
     cwd = os.path.dirname(os.getcwd())
     data_dir = os.path.join(cwd, 'misc')
-
+    # Files
     fN = os.path.join(data_dir, 'Project27_Gradient8_1.txt')
     fR = os.path.join(data_dir, 'Project27_Grad_8_R_1.txt')
-
+    # Initiate and parse
     ro = Reciprocal(fN, fR, stack_tres=.5)
-
     nr = ro.parse()
-
-    diff = pd.DataFrame(data=np.abs(np.subtract(nr[:, 0], nr[:, 1])), columns=['diff'])
-    print(diff.describe())
-    vt = diff.quantile(.99).values[0]
-    diffT = diff[diff['diff'] <= vt]
-    diffT.hist(bins=20)
-    plt.xlabel('Reciprocal error (ohm)', weight='bold', size=12)
-    plt.ylabel('Count', weight='bold', size=12)
-    plt.title('Histogram of reciprocal error', weight='bold', size=12)
-    plt.show()
-
-
+    # Plot histogram
+    hist(nr, quantile=.99, bins=20)
+    # Linear plot
     display(nr)
