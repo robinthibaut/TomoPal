@@ -8,19 +8,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-cwd = os.path.dirname(os.getcwd())
-
-data_dir = os.path.join(cwd, 'misc')
-
-fN = os.path.join(data_dir, 'Project27_Gradient8_1.txt')
-fR = os.path.join(data_dir, 'Project27_Grad_8_R_1.txt')
-
 
 def read_res(file):
     data = pd.read_csv(file, delimiter='\t')
     data.columns = [re.sub('[^A-Za-z0-9]+', '', col.lower()) for col in data.columns]
 
     return data
+
+
+def display(nor_rec):
+    # Plot
+    plt.plot(nor_rec[:, 0], nor_rec[:, 1], 'ko')
+    plt.show()
 
 
 class Reciprocal:
@@ -61,7 +60,16 @@ class Reciprocal:
 
         return nor_rec
 
-    def display(self, nor_rec):
-        # Plot
-        plt.plot(nor_rec[:, 0], nor_rec[:, 1], 'ko')
-        plt.show()
+
+if __name__ == '__main__':
+    cwd = os.path.dirname(os.getcwd())
+    data_dir = os.path.join(cwd, 'misc')
+
+    fN = os.path.join(data_dir, 'Project27_Gradient8_1.txt')
+    fR = os.path.join(data_dir, 'Project27_Grad_8_R_1.txt')
+
+    ro = Reciprocal(fN, fR, stack_tres=.5)
+
+    diff = ro.parse()
+
+    display(diff)
