@@ -1,7 +1,4 @@
 # Mohinh package
-```
-pip install mohinh
-```
 
 Python toolbox in construction to assign values to a computational grid. I originaly developped this to build starting and reference models for Electrical Resistivity Tomography inversions.
 
