@@ -10,6 +10,7 @@ import pandas as pd
 
 
 def read_res(file):
+    """Reads ABEM type output text files. Lowers the columns and removes special characters."""
     data = pd.read_csv(file, delimiter='\t')
     data.columns = [re.sub('[^A-Za-z0-9]+', '', col.lower()) for col in data.columns]
 
@@ -17,6 +18,7 @@ def read_res(file):
 
 
 def export(file, normal_reciprocal):
+    """Export (n, 2) normal, reciprocal measurement to text file"""
     np.savetxt(file, normal_reciprocal)
 
 
@@ -26,11 +28,23 @@ def display(nor_rec):
     plt.show()
 
 
-def hist(nor_rec, quantile, bins):
+def hist(nor_rec, bins, quantile=None):
+    """Plot histogram
+    :param nor_rec: np.array: Array (n, 2) containing n normal and reciprocal measurements
+    :param quantile: float: Quantile threshold
+    :param bins: int: Number of bins
+    """
+    if quantile is None:
+        quantile = 1
+    # Create DF and compute relative (%) reciprocal error
     diff = pd.DataFrame(data=np.abs(np.subtract(nor_rec[:, 0], nor_rec[:, 1])/nor_rec[:, 0]), columns=['diff'])
+    # Display some statistics
     print(diff.describe())
+    # Extracts value corresponding to desired quantile
     vt = diff.quantile(quantile).values[0]
+    # Cut
     diffT = diff[diff['diff'] <= vt]
+    # Plot
     diffT.hist(bins=bins)
     plt.xlabel('Reciprocal error (%)', weight='bold', size=12)
     plt.ylabel('Count', weight='bold', size=12)
@@ -47,7 +61,7 @@ class Reciprocal:
         self.ts = stack_tres
 
     def parse(self):
-
+        # Read normal and reciprocal data
         pN = read_res(self.fN)
         pR = read_res(self.fR)
 
@@ -60,14 +74,14 @@ class Reciprocal:
         abmnR = pR[['ax', 'bx', 'mx', 'nx', 'rohm']]
 
         # Concatenate them
-        nr = pd.concat([abmnN, abmnR])
+        conc = pd.concat([abmnN, abmnR])
 
         # To use a dict as a key you need to turn it into something that may be hashed first. If the dict you wish to
         # use as key consists of only immutable values, you can create a hashable representation of it with frozenset
-        nr['id'] = nr.apply(lambda row: frozenset(Counter(row[['ax', 'bx', 'mx', 'nx']]).keys()), axis=1)
+        conc['id'] = conc.apply(lambda row: frozenset(Counter(row[['ax', 'bx', 'mx', 'nx']]).keys()), axis=1)
 
         # Group by same identifiers = same electrode pairs
-        df1 = nr.groupby('id')['rohm'].apply(np.array).reset_index(name='rhos')
+        df1 = conc.groupby('id')['rohm'].apply(np.array).reset_index(name='rhos')
 
         # Extract list containing res values [N, R]
         rhos = [d for d in df1.rhos.values if len(d) == 2]
