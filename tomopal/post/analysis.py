@@ -67,6 +67,11 @@ class Reciprocal:
         self.ts = stack_tres
 
     def parse(self):
+        """
+        Reads the results text files and parses them.
+        It will cut data above repeatability threshold.
+        :return: resNR, varNR - two np arrays of pairs of resistance and repeatability error
+        """
         # Read normal and reciprocal data
         pN = read_res(self.fN)
         pR = read_res(self.fR)
@@ -76,8 +81,8 @@ class Reciprocal:
         pR = pR[pR['var'] < self.ts]
 
         # Extract normal and reciprocal subsets
-        abmnN = pN[['ax', 'bx', 'mx', 'nx', 'rohm']]
-        abmnR = pR[['ax', 'bx', 'mx', 'nx', 'rohm']]
+        abmnN = pN[['ax', 'bx', 'mx', 'nx', 'rohm', 'var']]
+        abmnR = pR[['ax', 'bx', 'mx', 'nx', 'rohm', 'var']]
 
         # Concatenate them
         conc = pd.concat([abmnN, abmnR])
@@ -92,9 +97,17 @@ class Reciprocal:
         # Extract list containing res values [N, R]
         rhos = [d for d in df1.rhos.values if len(d) == 2]
         # Flatten and reshape
-        nor_rec = np.array([item for sublist in rhos for item in sublist]).reshape((-1, 2))
+        resNR = np.array([item for sublist in rhos for item in sublist]).reshape((-1, 2))
 
-        return nor_rec
+        # Extract repeatability error as well:
+        df2 = conc.groupby('id')['var'].apply(np.array).reset_index(name='vars')
+
+        # Extract list containing var values [N, R]
+        var = [d for d in df2.vars.values if len(d) == 2]
+        # Flatten and reshape
+        varNR = np.array([item for sublist in var for item in sublist]).reshape((-1, 2))
+
+        return resNR, varNR
 
 
 if __name__ == '__main__':
@@ -106,8 +119,8 @@ if __name__ == '__main__':
     fR = os.path.join(data_dir, 'Project27_Grad_8_R_1.txt')
     # Initiate and parse
     ro = Reciprocal(fN, fR, stack_tres=.5)
-    nr = ro.parse()
+    res_nr, var_nr = ro.parse()
     # Plot histogram
-    hist(nr, quantile=.99, bins=20)
+    hist(res_nr, quantile=.99, bins=20)
     # Linear plot
-    display(nr)
+    display(res_nr)
