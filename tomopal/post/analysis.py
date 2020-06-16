@@ -55,6 +55,12 @@ def hist(nor_rec, bins, quantile=None):
 class Reciprocal:
 
     def __init__(self, normal_file, reciprocal_file, stack_tres):
+        """
+
+        :param normal_file: str: path to the normal measurements file
+        :param reciprocal_file: str: path to the reciprocal measurements file
+        :param stack_tres: float: Measurements repeatability (var %) threshold
+        """
 
         self.fN = normal_file
         self.fR = reciprocal_file
