@@ -14,7 +14,7 @@ from tomopal.geoview.diavatly import model_map  # To plot results
 # (except the data folder)
 # they will be automatically generated once you initialize a crtomo object.
 # Note: the function 'jp' simply joins the arguments to build a path.
-main_dir = jp(os.getcwd(), 'crtomopy')  # Current working directory of the project
+main_dir = jp(os.getcwd(), 'tomopal', 'crtomopy')  # Current working directory of the project
 data_dir = jp(main_dir, 'data', 'demo')  # Data files directory
 mesh_dir = jp(main_dir, 'mesh', 'demo')  # Mesh files directory
 iso_dir = jp(main_dir, 'iso', 'demo')  # ISO file dir
