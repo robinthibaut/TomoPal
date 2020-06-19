@@ -272,6 +272,10 @@ def model_map(polygons=None,
             scale01 = np.linspace(0, 1, len(itv))  # 0 -> 1 color values
             nat = np.zeros(res.shape)
             nat01 = np.zeros(res.shape)
+            # Correct for the biggest value
+            wb = np.where(res > np.max(itv))
+            nat[wb] = np.max(itv)
+            nat01[wb] = 1
             whereru = [np.where(res <= v) for v in itv]  # Gets the index of cells with value inferior to the selected
             # level
             # Finds the difference between each set to discretize the model values in bins
@@ -280,10 +284,6 @@ def model_map(polygons=None,
             for i, v in enumerate(itv):
                 nat[wherebouts[i]] = v
                 nat01[wherebouts[i]] = scale01[i]
-            # Correct for the biggest value
-            wb = np.where(nat > np.max(itv))
-            nat[wb] = np.max(itv)
-            nat01[wb] = 1
 
             # Gets value from 0 to 1 for color space
             # nl = find_norm(nat, itv)
