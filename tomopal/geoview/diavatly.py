@@ -264,13 +264,11 @@ def model_map(polygons=None,
             ticks = [round(v, 2) for v in itv]
         else:  # If levels are desired
             nat = np.copy(res)
-            for v in range(len(nat)):  # For each level in ITV, each value of the value array is replaced by the ITV
-                # value if it is larger than the next ITV value.
-                c = 0  # Counter, as only one replacement is made. Perhaps not optimal, think about something better.
-                for i in range(1, len(itv)):
-                    if nat[v] < itv[i] and not c:
-                        nat[v] = itv[i - 1]
-                        c += 1
+            whereru = [np.where(nat <= v) for v in itv]
+            wherebouts = [np.setdiff1d(whereru[i], whereru[i-1]) for i in range(len(whereru)-1, -1, -1)][::-1]
+            for i, v in enumerate(itv):
+                nat[wherebouts[i]] = v
+
             nl = find_norm(nat)
             # Removes duplicates
             nlv = list(dict.fromkeys(nl))

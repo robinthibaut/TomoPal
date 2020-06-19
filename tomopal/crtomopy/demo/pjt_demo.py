@@ -127,7 +127,7 @@ iterations = 20
 rms = 1.0000
 
 # 24 Flag for DC inversion (0 = with IP / 1 = only DC)
-dc = 0
+dc = 1
 
 # 25 Flag for robust inversion (0/1)
 robust = 1
@@ -247,6 +247,7 @@ cut = np.log10(4500)
 rest[rest > cut] = cut
 res_levels = 10 ** np.linspace(min(rest), cut, 10)  # Define a linear space for the color map
 rtp = 10**np.copy(rest)
+
 # Use the model_map function to display the computed resistivity:
 # log=1 because we want a logarithmic scale.
 # cbpos is for the position of the color bar.
