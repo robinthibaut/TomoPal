@@ -128,20 +128,25 @@ def rc_from_blocks(blocks):
     return dc, dr
 
 
-def find_norm(l):  # Convert values to linear space to facilitate visualization!
-    uv = list(dict.fromkeys(l))
-    uv.sort()
+def find_norm(array, levels):
+    """Convert values to linear space to facilitate visualization!"""
 
-    ls = np.linspace(0, 1, len(uv))
+    # uv = list(dict.fromkeys(array))  # Get unique values
+    # uv.sort()  # Sort
 
-    nl = []
+    uv = levels
 
-    for i in range(len(l)):
+    ls = np.linspace(0, 1, len(uv))  # Linear space from 0 to 1 with n values (color levels)
+
+    nl = []  # List that will contain colors scaled from 0 to 1
+
+    for i in range(len(array)):
         c = 0
         for j in range(len(uv)):
-            if l[i] <= uv[j] and not c:
+            if array[i] <= uv[j] and not c:
                 nl.append(ls[j])
                 c += 1
+
     return nl
 
 
@@ -263,21 +268,31 @@ def model_map(polygons=None,
             boundaries = None  # To define ticks
             ticks = [round(v, 2) for v in itv]
         else:  # If levels are desired
-            nat = np.copy(res)
-            whereru = [np.where(nat <= v) for v in itv]
-            wherebouts = [np.setdiff1d(whereru[i], whereru[i-1]) for i in range(len(whereru)-1, -1, -1)][::-1]
+            scale01 = np.linspace(0, 1, len(itv))  # 0 -> 1 color values
+            nat = np.zeros(res.shape)
+            nat01 = np.zeros(res.shape)
+            whereru = [np.where(res <= v) for v in itv]  # Gets the index of cells with value inferior to the selected
+            # level
+            # Finds the difference between each set to discretize the model values in bins
+            wherebouts = [np.setdiff1d(whereru[i], whereru[i - 1]) for i in range(len(whereru) - 1, -1, -1)][::-1]
+            # Replace
             for i, v in enumerate(itv):
                 nat[wherebouts[i]] = v
+                nat01[wherebouts[i]] = scale01[i]
 
-            nl = find_norm(nat)
+            # Gets value from 0 to 1 for color space
+            # nl = find_norm(nat, itv)
+            nl = nat01
             # Removes duplicates
             nlv = list(dict.fromkeys(nl))
             nlv.sort()
-            fcols = [cmap(v) for v in nl]
-            boundaries = np.copy(itv)
-            cols = colors.ListedColormap([cmap(v) for v in nlv])
+
+            fcols = [cmap(v) for v in nl]  # Where colors are defined for each cell
+            cols = colors.ListedColormap([cmap(v) for v in scale01])  # Changed here !
             cmap = cols
 
+            # Colorbar properties:
+            boundaries = np.copy(itv)
             norm = colors.BoundaryNorm(boundaries, cols.N)
             formatter = None
             ticks = boundaries
@@ -287,6 +302,7 @@ def model_map(polygons=None,
 
     fig, ax = plt.subplots()
 
+    # Define polygons
     patches = []
     for b in polygons:
         polygon = Polygon(b, closed=True)
