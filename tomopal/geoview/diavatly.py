@@ -15,6 +15,7 @@ from matplotlib.ticker import LogFormatter
 
 plt.style.use('dark_background')
 
+
 def datread(file=None, header=0):
     """Reads space separated dat file"""
     with open(file, 'r') as fr:
@@ -319,28 +320,37 @@ def model_map(polygons=None,
     p = PatchCollection(patches, alpha=1, facecolors=fcols, edgecolors=edgecolors, linewidths=0.2)
     ax.add_collection(p)
 
-    padx = (xs.max() - xs.min()) * 0.02  # 5% padding
+    padx = (xs.max() - xs.min()) * 0.01  # 5% padding
     pady = (ys.max() - ys.min()) * 0.07  # 5% padding
-    xmin = xs.min()
-    xmax = xs.max()
-    ax.set_xlim(xmin - padx, xmax + padx)
-    ax.set_ylim(ys.min() - pady, ys.max() + pady)
+
+    xmin = xs.min() - padx
+    xmax = xs.max() + padx
+
+    ymin = ys.min() - pady
+    ymax = ys.max() + pady
+
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+
     ax.set_aspect(aspect=aspect)
 
     plt.xticks(fontsize=5)
     plt.yticks(fontsize=5)
+
     stepx = round((xmax - xmin) / 15)
     stepy = stepx
-    plt.xticks(np.arange(round(xs.min()), round(xs.max()) + stepx, step=stepx))
-    plt.yticks(np.arange(round(ys.min()), round(ys.max()) + stepy, step=stepy))
+    plt.xticks(np.arange(round(xs.min()), round(xs.max()), step=stepx))
+    plt.yticks(np.arange(round(ys.min()), round(ys.max()), step=stepy))
     plt.ylabel('Y', fontsize=6)
     ax.set_title('X', fontsize=6)
 
     if res.any():
 
-        plt.subplots_adjust(bottom=0.2)
+        plt.subplots_adjust(left=0, bottom=0.2, right=1)
         # Colorbar
-        axcb = plt.axes([0.1, cbpos, 0.95 - 0.1, 0.035])
+        # rect = [left, bottom, width, height
+        left = 0.
+        axcb = plt.axes([left, cbpos, 1-left, 0.035])
         cb1 = colorbar.ColorbarBase(axcb,
                                     cmap=cmap,
                                     norm=norm,
