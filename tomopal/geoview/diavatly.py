@@ -280,6 +280,10 @@ def model_map(polygons=None,
             for i, v in enumerate(itv):
                 nat[wherebouts[i]] = v
                 nat01[wherebouts[i]] = scale01[i]
+            # Correct for the biggest value
+            wb = np.where(nat > np.max(itv))
+            nat[wb] = np.max(itv)
+            nat01[wb] = 1
 
             # Gets value from 0 to 1 for color space
             # nl = find_norm(nat, itv)
