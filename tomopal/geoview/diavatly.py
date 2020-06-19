@@ -13,6 +13,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon
 from matplotlib.ticker import LogFormatter
 
+plt.style.use('dark_background')
 
 def datread(file=None, header=0):
     """Reads space separated dat file"""
@@ -335,7 +336,6 @@ def model_map(polygons=None,
 
         plt.subplots_adjust(bottom=0.2)
         # Colorbar
-        # axcb = plt.axes([0.125, 0.33, 0.9 - 0.125, 0.035])
         axcb = plt.axes([0.1, cbpos, 0.95 - 0.1, 0.035])
         cb1 = colorbar.ColorbarBase(axcb,
                                     cmap=cmap,
