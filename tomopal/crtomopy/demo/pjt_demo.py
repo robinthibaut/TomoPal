@@ -44,7 +44,7 @@ myinv = Crtomo(working_dir=main_dir,
 
 # %%  Generating the mesh
 
-# Data file name A B M N R in meters
+# Data file name A B M N in meters
 
 df = jp(data_dir, 'demo_elecs.dat')  # Path to electrode configuration file
 dat = datread(df)  # Use built-in function to extract data (optional)

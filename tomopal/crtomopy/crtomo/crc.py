@@ -26,7 +26,7 @@ def path_leaf(path):
 def datread(file=None, header=0):
     """Reads space separated dat file"""
     with open(file, 'r') as fr:
-        op = np.array([list(map(float, l.split())) for l in fr.readlines()[header:]])
+        op = np.array([list(map(float, l.split())) for l in fr.readlines()[header:]], dtype=object)
     return op
 
 
