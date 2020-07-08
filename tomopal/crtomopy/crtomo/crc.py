@@ -1,17 +1,20 @@
 #  Copyright (c) 2020. Robin Thibaut, Ghent University
 
-import ntpath
 import os
 import shutil
-import subprocess as sp
 import warnings
 from os import listdir
 from os.path import isfile, join
 from os.path import join as jp
-from shutil import copyfile
 
 import numpy as np
 from scipy.interpolate import interp1d as f1d
+import subprocess as sp
+from shutil import copyfile
+import ntpath
+
+
+#  Functions
 
 
 def path_leaf(path):
@@ -27,7 +30,7 @@ def datread(file=None, header=0):
     return op
 
 
-def res2mod(file, multiplier=1):
+def res2mod(file, processing_function=None):
     """Converts a crtomo result txt file to a starting/reference model dat file"""
 
     # ref or start model:
@@ -39,11 +42,14 @@ def res2mod(file, multiplier=1):
     f = datread(file)
     sm = [f[i][2] for i in range(1, len(f))]
 
+    if processing_function:
+        sm = processing_function(np.array(sm))
+
     fname = file.replace(fext, 'dat')
 
     with open(fname, 'w') as smf:
         smf.write(str(int(f[0][0])) + '\n')
-        [smf.write(str(10 ** (sm[i] * multiplier)) + '\t' + '0' + '\t' + str(sm[i] * multiplier) + '\t' + '0' + '\n')
+        [smf.write(str(10 ** (sm[i])) + '\t' + '0' + '\t' + str(sm[i]) + '\t' + '0' + '\n')
          for i in range(0, len(sm))]
         smf.close()
 
@@ -69,20 +75,34 @@ def flag(n):
         return 'T'
 
 
-def write_data(data=None,
-               data_op_file=None):
+def write_data(nelem=0,
+               electrode_spacing=1,
+               data=None,
+               data_op_file=None,
+               m2p=1):
     """
 
     Given the arguments below, writes crtomo-readable file.
+
+    :param nelem: number of cells
+    :param electrode_spacing: electrode spacing
     :param data: np.array containing A B M N locations in METERS, RESISTANCE, and IP (mrad)
     :param data_op_file: name of the output data file
+    :param m2p Factor to convert IP data to mrad
     :return: nothing
 
     """
 
-    crdata = np.copy(data)
+    crdata = data
+    es = electrode_spacing
 
-    crdataf = str(len(crdata)) + '\n' + '\n'.join([' '.join(list(map(str, line))) for line in crdata])
+    crdata[:, [0, 1, 2, 3]] = (crdata[:,
+                               [0, 1, 2, 3]] + es) / es  # Convert the electrode x-position to electrodes number.
+
+    if m2p != 1:
+        crdata[:, -1] *= m2p
+
+    crdataf = str(nelem) + '\n' + '\n'.join([' '.join(list(map(str, l))) for l in crdata])
 
     with open(data_op_file, 'w') as ndf:
         ndf.write(crdataf)
@@ -226,6 +246,7 @@ def mesh_geometry(mesh_file):
     """
 
     # Reading mesh results
+    # msh = datread(mesh_file) # Deprecated
 
     with open(mesh_file, 'r') as fr:
         msh = np.array([list(map(float, l.replace('T', '').split())) for l in fr.readlines()])
@@ -319,6 +340,7 @@ class Crtomo:
                  iso_dir='\\',
                  ref_dir='\\',
                  start_dir='\\',
+                 results_dir='\\',
                  crtomo_exe='crtomo.exe',
                  mesh_exe='mesh.exe'):
 
@@ -381,6 +403,7 @@ class Crtomo:
         dat = abmn
         mesh_dir = self.mesh_dir
         mesh_exe_name = self.mesh_exe
+        cwd = self.working_dir
         elev = elevation_data
         es = electrode_spacing  # Electrode spacing
 
@@ -664,7 +687,6 @@ class Crtomo:
         self.f3 = fdi3  # F3
         fdi3 = crtomo_file_shortener(self.crtomo_exe, fdi3)
 
-        # TODO: convert this to 'f' formatted text !
         template = """***Files****
 {0}
 {1}
