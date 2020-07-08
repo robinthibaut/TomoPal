@@ -147,7 +147,7 @@ def mtophase(ncycles=0,
 
     sp.call([jp(mpath, 'mtophase.exe')])  # Run
 
-    mm = open('MtoPhase.dat', 'r').readlines()
+    mm = open(jp(mpath, 'MtoPhase.dat'), 'r').readlines()
     ms = mm[0].split()
     f = float(ms[0])
 
