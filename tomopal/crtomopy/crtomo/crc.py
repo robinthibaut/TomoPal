@@ -114,17 +114,21 @@ def write_data(nelem=0,
 def mtophase(ncycles=0,
              pulse_l=0,
              tmin=0,
-             tmax=0):
+             tmax=0,
+             mpath=None):
     """
     Run mtophase.exe and loads return the conversion factor.
     :param ncycles: number of cycles of injected square wave (with 50% duty cycle)
     :param pulse_l: pulse length (in sec)
     :param tmin: t_min of chargeability time window (in sec)
     :param tmax: t_max of chargeability time window (in sec)
+    :param mpath: str: Path to the folder containing IP exe and config files
     :return: m2p factor
     """
 
-    mpath = jp(os.path.dirname(inventory.Directories.main_dir, 'ip'))
+    if mpath is None:
+        main_dir = inventory.hello()
+        mpath = jp(main_dir, 'ip')
 
     if not os.path.exists(mpath):
         warnings.warn(mpath + ' folder not found')
