@@ -4,4 +4,4 @@ __author__ = 'Robin Thibaut'
 #  Copyright (c) 2020. Robin Thibaut, Ghent University
 
 # imports
-from mohinh.mohinh import *
+from tomopal.model.mohinh import *
