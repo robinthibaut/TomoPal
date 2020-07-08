@@ -1,17 +1,19 @@
 #  Copyright (c) 2020. Robin Thibaut, Ghent University
 
+import ntpath
 import os
 import shutil
+import subprocess as sp
 import warnings
 from os import listdir
 from os.path import isfile, join
 from os.path import join as jp
+from shutil import copyfile
 
 import numpy as np
 from scipy.interpolate import interp1d as f1d
-import subprocess as sp
-from shutil import copyfile
-import ntpath
+
+from tomopal.crtomopy.parent import inventory
 
 
 #  Functions
@@ -122,7 +124,7 @@ def mtophase(ncycles=0,
     :return: m2p factor
     """
 
-    mpath = jp(os.path.dirname(os.path.abspath(__file__)), 'ip')
+    mpath = jp(os.path.dirname(inventory.Directories.main_dir, 'ip'))
 
     if not os.path.exists(mpath):
         warnings.warn(mpath + ' folder not found')
