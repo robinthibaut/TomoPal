@@ -145,7 +145,9 @@ def mtophase(ncycles=0,
     if not os.path.exists(jp(mpath, 'mtophase.exe')):
         warnings.warn('mtophase.exe not found')
 
+    os.chdir(mpath)
     sp.call([jp(mpath, 'mtophase.exe')])  # Run
+    os.chdir(os.path.dirname(mpath))
 
     mm = open(jp(mpath, 'MtoPhase.dat'), 'r').readlines()
     ms = mm[0].split()
