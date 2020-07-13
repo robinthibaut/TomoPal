@@ -145,7 +145,9 @@ def mtophase(ncycles=0,
     if not os.path.exists(jp(mpath, 'mtophase.exe')):
         warnings.warn('mtophase.exe not found')
 
+    os.chdir(mpath)
     sp.call([jp(mpath, 'mtophase.exe')])  # Run
+    os.chdir(os.path.dirname(mpath))
 
     mm = open(jp(mpath, 'MtoPhase.dat'), 'r').readlines()
     ms = mm[0].split()
@@ -295,12 +297,13 @@ def mesh_geometry(mesh_file):
 
 
 def neighbor(abcd, h):
+    # TODO: Write this in c++
     """
 
     Function to fill the final mesh file.
 
     :param abcd: adj [4 cols]
-    :param h: type int
+    :param h: int:
     :return: [el1, el2, el3, el4]
     """
 
