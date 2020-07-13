@@ -175,10 +175,9 @@ def import_res(result_folder,
                iteration=0,
                return_file=0):
     """
-
-    :param return_file: if True, returns the path of the created file
-    :param result_folder: FOLDER containing results files .rho .pha
-    :param iteration: Iteration number, by default the last one is selected
+    :param return_file: bool: if True, returns the path of the created file
+    :param result_folder: str: FOLDER containing results files .rho .pha
+    :param iteration: int: Iteration number, by default the last one is selected
     :return: r_array, p_array if the case
     """
 
@@ -189,6 +188,7 @@ def import_res(result_folder,
 
     rho_files = [jp(result_folder, x) for x in onlyfiles if 'rho' and '.txt' in x]
     pha_files = [jp(result_folder, x) for x in onlyfiles if '.pha' in x]
+    sens = jp(result_folder, 'sens.dat')
 
     r_array = np.array([])
     p_array = np.array([])
@@ -201,16 +201,18 @@ def import_res(result_folder,
             iplast = pha_files[iteration]
             phalast = np.array(datread(iplast)[1:])
             p_array = np.array([phalast[r][2] for r in range(len(phalast))])
+        s_array = np.array(datread(sens)[1:])
+
     else:
-        print('no results found')
+        warnings.warn('no results found')
 
     if return_file:
         if p_array.any():
-            return [r_array, p_array], [rlast, iplast]
+            return [r_array, p_array, s_array], [rlast, iplast, sens]
         else:
-            return [r_array], [rlast]
+            return [r_array, s_array], [rlast, sens]
     else:
-        return [r_array, p_array]
+        return [r_array, p_array, s_array]
 
 
 def dirmaker(dirp):
