@@ -295,12 +295,13 @@ def mesh_geometry(mesh_file):
 
 
 def neighbor(abcd, h):
+    # TODO: Write this in c++
     """
 
     Function to fill the final mesh file.
 
     :param abcd: adj [4 cols]
-    :param h: type int
+    :param h: int:
     :return: [el1, el2, el3, el4]
     """
 
