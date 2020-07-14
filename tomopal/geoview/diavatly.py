@@ -13,13 +13,16 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon
 from matplotlib.ticker import LogFormatter
 
-plt.style.use('dark_background')
 
-
-def datread(file=None, header=0):
+def datread(file=None, start=0, end=None):
+    # end must be set to None and NOT -1
     """Reads space separated dat file"""
     with open(file, 'r') as fr:
-        op = np.array([list(map(float, l.split())) for l in fr.readlines()[header:]])
+        lines = np.copy(fr.readlines())[start:end]
+        try:
+            op = np.array([list(map(float, line.split())) for line in lines])
+        except ValueError:
+            op = [line.split() for line in lines]
     return op
 
 

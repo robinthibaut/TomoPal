@@ -163,7 +163,7 @@ starting_model_file = None
 # %% 19 ISO file 1
 iso_file1 = jp(iso_dir, 'iso.dat')
 
-# dm = datread(starting_model_file, header=1)[:, 0]
+# dm = datread(starting_model_file, start=1)[:, 0]
 # isom = ModelMaker(blocks=blocks, values=dm, values_log=1, bck=1)
 # #
 # with open(iso_file1, 'w') as rw:
