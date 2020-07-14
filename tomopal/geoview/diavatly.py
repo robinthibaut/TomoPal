@@ -207,6 +207,8 @@ def model_map(polygons=None,
               log=1,
               aspect=1 / 1.3,
               cbpos=0.1,
+              stepx=None,
+              stepy=None,
               folder=None,
               figname=None,
               dpi=300,
@@ -216,14 +218,19 @@ def model_map(polygons=None,
 
     Given a mesh geometry and values, produces the colored mesh with the proper color scale
 
-    :param polygons: array containing the xy coordinates of the different mesh blocks
-    :param vals: array containing the value assigned to each block
-    :param levels: sequential or continuous color scale
-    :param aspect: plot aspect ratio
-    :param cbpos: z-position of the colorbar between 0 and 1
-    :param log: flag for logarithmic scale
-    :param folder: folder where images will be saved
-    :param figname: figure name
+    :param stepy: float: Step size to discretize the y-axis
+    :param stepx: float: Step size to discretize the x-axis
+    :param dpi: int: fig dpi
+    :param contours_path: list: List of matplotlib contour paths
+    :param contour: float: Contour value
+    :param polygons: np.array (n, m, 4): array containing the xy coordinates of the different mesh blocks
+    :param vals: np.array (n*m): array containing the value assigned to each block
+    :param levels: list: sequential or continuous color scale
+    :param aspect: float: plot aspect ratio
+    :param cbpos: float: z-position of the colorbar between 0 and 1
+    :param log: bool: flag for logarithmic scale
+    :param folder: str: folder where images will be saved
+    :param figname: str: figure name
     :return:
     """
     # TODO: Polish this function.
@@ -320,6 +327,7 @@ def model_map(polygons=None,
     p = PatchCollection(patches, alpha=1, facecolors=fcols, edgecolors=edgecolors, linewidths=0.2)
     ax.add_collection(p)
 
+    # Add padding
     padx = (xs.max() - xs.min()) * 0.01  # 5% padding
     pady = (ys.max() - ys.min()) * 0.07  # 5% padding
 
@@ -329,21 +337,29 @@ def model_map(polygons=None,
     ymin = ys.min() - pady
     ymax = ys.max() + pady
 
+    # Set limits
     ax.set_xlim(xmin, xmax)
     ax.set_ylim(ymin, ymax)
 
+    # Set aspect
     ax.set_aspect(aspect=aspect)
 
+    # Set x/y ticks
     plt.xticks(fontsize=5)
     plt.yticks(fontsize=5)
 
-    stepx = round((xmax - xmin) / 15)
-    stepy = stepx
+    if stepx is None:
+        stepx = round((xmax - xmin) / 15)
+    if stepy is None:
+        stepy = stepx
+
     plt.xticks(np.arange(round(xs.min()), round(xs.max()), step=stepx))
     plt.yticks(np.arange(round(ys.min()), round(ys.max()), step=stepy))
+
     plt.ylabel('Y', fontsize=6)
     ax.set_title('X', fontsize=6)
 
+    # Set color bar and others
     if res.any():
 
         plt.subplots_adjust(left=0, bottom=0.2, right=1)
