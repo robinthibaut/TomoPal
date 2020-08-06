@@ -301,7 +301,7 @@ def mesh_geometry(mesh_file):
 
     centerxy = np.array([[np.mean(blocks[i, :, 0]), np.mean(blocks[i, :, 1])] for i in range(nelem)])
 
-    return ncol, nlin, nelem, blocks, centerxy
+    return ncol, nlin, nelem, blocks, centerxy, nodes
 
 
 def neighbor(abcd, h):
