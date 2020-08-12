@@ -65,7 +65,8 @@ class Transformation:
         blocks = read_file(self.block_file)  # Raw mesh info
         # TODO: Optimize parse - implement for several output (res, ip..)
         blocks2d_flat = blocks[:, 1:9]  # Flat list of polygon vertices
-        rho = blocks[:, (9+1):]  # Values associated to each block
+
+        rho = blocks[:, 9:]  # Values associated to each block
 
         # Load profile bounds, must be in the correct format:
         # [[ lat1, lon1], [lat2, lon2]]

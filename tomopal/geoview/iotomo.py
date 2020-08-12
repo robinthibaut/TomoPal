@@ -47,9 +47,16 @@ class TomoVTK:
             self.name = name
 
     def grid_to_vtk(self, blocks, values, values_names=None):
+        """
+        # TODO: define values shape
+        :param blocks:
+        :param values:
+        :param values_names:
+        :return:
+        """
 
         if values_names is None:
-            values_names = [f'val{i}' for i in range(len(values))]
+            values_names = [f'val{i}' for i in range(values.shape[1])]
 
         # Initiate points and ugrid
         points = vtk.vtkPoints()
@@ -67,7 +74,7 @@ class TomoVTK:
         for e, val in enumerate(values_names):
             resArray = vtk.vtkDoubleArray()
             resArray.SetName(f'{val}')
-            [resArray.InsertNextValue(r) for r in values[e, :]]
+            [resArray.InsertNextValue(r) for r in values[:, e]]
             ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
 
         # Save grid
