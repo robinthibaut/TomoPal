@@ -204,11 +204,26 @@ def import_res(result_folder,
     p_array = np.array([])
 
     if len(rho_files) > 0:
-        rlast = rho_files[iteration]
+
+        its_res = [int(os.path.basename(r).split('.')[0].strip('rho0').strip('rho')) for r in rho_files]
+        nits = max(its_res)
+
+        if iteration == -1:
+            iter = its_res.index(nits)
+        else:
+            iter = its_res.index(iteration)
+
+        rlast = rho_files[iter]
         rholast = np.array(datread(rlast)[1:])
         r_array = np.array([rholast[r][2] for r in range(len(rholast))])
         if len(pha_files) > 0:
-            iplast = pha_files[iteration]
+            its_pha = [int(os.path.basename(r).split('.')[0].strip('rho0').strip('rho')) for r in pha_files]
+            if iteration == -1:
+                iterip = its_pha.index(nits)
+            else:
+                iterip = its_pha.index(iteration)
+
+            iplast = pha_files[iterip]
             phalast = np.array(datread(iplast)[1:])
             p_array = np.array([phalast[r][2] for r in range(len(phalast))])
         s_array = np.array(datread(sens)[1:])
