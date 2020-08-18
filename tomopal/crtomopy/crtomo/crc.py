@@ -226,7 +226,11 @@ def import_res(result_folder,
             iplast = pha_files[iterip]
             phalast = np.array(datread(iplast)[1:])
             p_array = np.array([phalast[r][2] for r in range(len(phalast))])
-        s_array = np.array(datread(sens)[1:])
+
+        try:
+            s_array = np.array(datread(sens)[1:])
+        except FileNotFoundError:
+            s_array = []
 
     else:
         warnings.warn('no results found')

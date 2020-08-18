@@ -196,7 +196,7 @@ def model_map(polygons=None,
               vals=np.array([]),
               levels=0,
               log=1,
-              aspect=1 / 1.3,
+              aspect=1/1.3,
               cbpos=0.1,
               stepx=None,
               stepy=None,
@@ -347,8 +347,8 @@ def model_map(polygons=None,
     plt.xticks(np.arange(round(xs.min()), round(xs.max()), step=stepx))
     plt.yticks(np.arange(round(ys.min()), round(ys.max()), step=stepy))
 
-    plt.ylabel('Y', fontsize=6)
-    ax.set_title('X', fontsize=6)
+    # plt.ylabel('Y', fontsize=6)
+    # ax.set_title('X', fontsize=6)
 
     # Set color bar and others
     if res.any():
