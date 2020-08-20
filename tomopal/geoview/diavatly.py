@@ -273,17 +273,25 @@ def model_map(polygons=None,
             nat = np.zeros(res.shape)
             nat01 = np.zeros(res.shape)
             # Correct for the biggest value
-            wb = np.where(res > np.max(itv))
+            wb = np.where(res >= itv[-2])
             nat[wb] = np.max(itv)
+            res[wb] = np.max(itv)
+
+            # Correct for the smallest value
+            wbm = np.where(res <= itv[1])
+            nat[wbm] = np.min(itv)
+            res[wbm] = np.min(itv)
+
             nat01[wb] = 1
-            whereru = [np.where(res <= v) for v in itv]  # Gets the index of cells with value inferior to the selected
+            whereru = [np.where(res <= v) for v in itv[1:-1]]  # Gets the index of cells with value inferior to the selected
             # level
             # Finds the difference between each set to discretize the model values in bins
             wherebouts = [np.setdiff1d(whereru[i], whereru[i - 1]) for i in range(len(whereru) - 1, -1, -1)][::-1]
             # Replace
-            for i, v in enumerate(itv):
+            scale_c = np.copy(scale01)
+            for i, v in enumerate(itv[1:-1]):
                 nat[wherebouts[i]] = v
-                nat01[wherebouts[i]] = scale01[i]
+                nat01[wherebouts[i]] = scale_c[i]
 
             # Gets value from 0 to 1 for color space
             # nl = find_norm(nat, itv)
@@ -293,12 +301,14 @@ def model_map(polygons=None,
             nlv.sort()
 
             fcols = [cmap(v) for v in nl]  # Where colors are defined for each cell
+            # scale01 = np.array(sorted(set(nl)))
             cols = colors.ListedColormap([cmap(v) for v in scale01])  # Changed here !
             cmap = cols
 
             # Colorbar properties:
             boundaries = np.copy(itv)
-            norm = colors.BoundaryNorm(boundaries, cols.N)
+            # boundaries = sorted(set(nat))
+            norm = colors.BoundaryNorm(boundaries, cmap.N)
             formatter = None
             ticks = boundaries
 
