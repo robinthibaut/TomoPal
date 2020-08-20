@@ -202,9 +202,10 @@ def model_map(polygons=None,
               stepy=None,
               folder=None,
               figname=None,
-              dpi=300,
               contour=None,
-              contours_path=None):
+              contours_path=None,
+              dpi=300,
+              extension='png'):
     """
 
     Given a mesh geometry and values, produces the colored mesh with the proper color scale
@@ -393,7 +394,7 @@ def model_map(polygons=None,
             ax.add_collection(pc)
 
     if figname:
-        plt.savefig('{}.png'.format(jp(folder, figname)), dpi=dpi, bbox_inches='tight')
+        plt.savefig('{}.{}'.format(jp(folder, figname), extension), dpi=dpi, bbox_inches='tight')
 
 
 def DOI(d1, d2, r1, r2):
