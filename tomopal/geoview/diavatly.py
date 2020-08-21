@@ -196,7 +196,7 @@ def model_map(polygons=None,
               vals=np.array([]),
               levels=0,
               log=1,
-              aspect=1/1.3,
+              aspect=1,
               cbpos=0.1,
               stepx=None,
               stepy=None,
@@ -283,9 +283,9 @@ def model_map(polygons=None,
                 res[wb] = np.max(itv)
 
                 # Correct for the smallest value
-                wbm = np.where(res <= itv[1])
-                nat[wbm] = np.min(itv)
-                res[wbm] = np.min(itv)
+                # wbm = np.where(res <= itv[1])
+                # nat[wbm] = np.min(itv)
+                # res[wbm] = np.min(itv)
 
                 nat01[wb] = 1
                 whereru = [np.where(res <= v) for v in itv[1:-1]]  # Gets the index of cells with value inferior to
@@ -311,11 +311,12 @@ def model_map(polygons=None,
                 cmap = cols
 
                 # Colorbar properties:
-                boundaries = np.copy(itv)
+                boundaries = np.array([np.round(b, 1) for b in itv])
                 # boundaries = sorted(set(nat))
                 norm = colors.BoundaryNorm(boundaries, cmap.N)
                 formatter = None
                 ticks = boundaries
+                # ticks = np.array([np.round(b, 1) for b in boundaries])
 
             else:  # Experimental
                 itv = sorted(set(res))
@@ -344,7 +345,7 @@ def model_map(polygons=None,
 
                 # Colorbar properties:
                 # boundaries = np.copy(itv)
-                boundaries = np.copy([0] + itv)
+                boundaries = np.copy(itv)
                 norm = colors.BoundaryNorm(boundaries, cmap.N)
                 formatter = None
                 ticks = boundaries
