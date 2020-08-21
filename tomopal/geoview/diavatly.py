@@ -205,6 +205,8 @@ def model_map(polygons=None,
               contour=None,
               contours_path=None,
               binned=False,
+              fontsize=5,
+              labelsize=5,
               dpi=300,
               extension='png'):
     """
@@ -314,6 +316,7 @@ def model_map(polygons=None,
                 norm = colors.BoundaryNorm(boundaries, cmap.N)
                 formatter = None
                 ticks = boundaries
+
             else:  # Experimental
                 itv = sorted(set(res))
 
@@ -365,8 +368,8 @@ def model_map(polygons=None,
     ax.add_collection(p)
 
     # Add padding
-    padx = (xs.max() - xs.min()) * 0.01  # 5% padding
-    pady = (ys.max() - ys.min()) * 0.07  # 5% padding
+    padx = (xs.max() - xs.min()) * 0.01  # 1% padding
+    pady = (ys.max() - ys.min()) * 0.07  # 7% padding
 
     xmin = xs.min() - padx
     xmax = xs.max() + padx
@@ -382,8 +385,8 @@ def model_map(polygons=None,
     ax.set_aspect(aspect=aspect)
 
     # Set x/y ticks
-    plt.xticks(fontsize=5)
-    plt.yticks(fontsize=5)
+    plt.xticks(fontsize=fontsize)
+    plt.yticks(fontsize=fontsize)
 
     if stepx is None:
         stepx = round((xmax - xmin) / 15)
@@ -412,9 +415,10 @@ def model_map(polygons=None,
                                     spacing='uniform',
                                     format=formatter,
                                     orientation='horizontal')
+
         cb1.outline.set_linewidth(0.5)
         cb1.set_ticklabels(np.round(ticks, 2))
-        cb1.ax.tick_params(labelsize=5)
+        cb1.ax.tick_params(labelsize=labelsize)
         plt.setp(ax.spines.values(), linewidth=0.5)
         plt.setp(axcb.spines.values(), linewidth=0.1)
 
