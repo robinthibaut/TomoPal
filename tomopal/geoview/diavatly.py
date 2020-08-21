@@ -204,6 +204,7 @@ def model_map(polygons=None,
               figname=None,
               contour=None,
               contours_path=None,
+              binned=False,
               dpi=300,
               extension='png'):
     """
@@ -272,45 +273,79 @@ def model_map(polygons=None,
             scale01 = np.linspace(0, 1, len(itv))  # 0 -> 1 color values
             nat = np.zeros(res.shape)
             nat01 = np.zeros(res.shape)
-            # Correct for the biggest value
-            wb = np.where(res >= itv[-2])
-            nat[wb] = np.max(itv)
-            res[wb] = np.max(itv)
 
-            # Correct for the smallest value
-            wbm = np.where(res <= itv[1])
-            nat[wbm] = np.min(itv)
-            res[wbm] = np.min(itv)
+            if not binned:
+                # Correct for the biggest value
+                wb = np.where(res >= itv[-2])
+                nat[wb] = np.max(itv)
+                res[wb] = np.max(itv)
 
-            nat01[wb] = 1
-            whereru = [np.where(res <= v) for v in itv[1:-1]]  # Gets the index of cells with value inferior to the selected
-            # level
-            # Finds the difference between each set to discretize the model values in bins
-            wherebouts = [np.setdiff1d(whereru[i], whereru[i - 1]) for i in range(len(whereru) - 1, -1, -1)][::-1]
-            # Replace
-            scale_c = np.copy(scale01)
-            for i, v in enumerate(itv[1:-1]):
-                nat[wherebouts[i]] = v
-                nat01[wherebouts[i]] = scale_c[i]
+                # Correct for the smallest value
+                wbm = np.where(res <= itv[1])
+                nat[wbm] = np.min(itv)
+                res[wbm] = np.min(itv)
 
-            # Gets value from 0 to 1 for color space
-            # nl = find_norm(nat, itv)
-            nl = nat01
-            # Removes duplicates
-            nlv = list(dict.fromkeys(nl))
-            nlv.sort()
+                nat01[wb] = 1
+                whereru = [np.where(res <= v) for v in itv[1:-1]]  # Gets the index of cells with value inferior to
+                # the selected level
+                # Finds the difference between each set to discretize the model values in bins
+                wherebouts = [np.setdiff1d(whereru[i], whereru[i - 1]) for i in range(len(whereru) - 1, -1, -1)][::-1]
+                # Replace
+                scale_c = np.copy(scale01)
+                for i, v in enumerate(itv[1:-1]):
+                    nat[wherebouts[i]] = v
+                    nat01[wherebouts[i]] = scale_c[i]
 
-            fcols = [cmap(v) for v in nl]  # Where colors are defined for each cell
-            # scale01 = np.array(sorted(set(nl)))
-            cols = colors.ListedColormap([cmap(v) for v in scale01])  # Changed here !
-            cmap = cols
+                # Gets value from 0 to 1 for color space
+                # nl = find_norm(nat, itv)
+                nl = nat01
+                # Removes duplicates
+                nlv = list(dict.fromkeys(nl))
+                nlv.sort()
 
-            # Colorbar properties:
-            boundaries = np.copy(itv)
-            # boundaries = sorted(set(nat))
-            norm = colors.BoundaryNorm(boundaries, cmap.N)
-            formatter = None
-            ticks = boundaries
+                fcols = [cmap(v) for v in nl]  # Where colors are defined for each cell
+                # scale01 = np.array(sorted(set(nl)))
+                cols = colors.ListedColormap([cmap(v) for v in scale01])  # Changed here !
+                cmap = cols
+
+                # Colorbar properties:
+                boundaries = np.copy(itv)
+                # boundaries = sorted(set(nat))
+                norm = colors.BoundaryNorm(boundaries, cmap.N)
+                formatter = None
+                ticks = boundaries
+            else:  # Experimental
+                itv = sorted(set(res))
+
+                wb = np.where(res >= itv[-1])
+                nat01[wb] = 1
+
+                whereru = [np.where(res <= v) for v in itv]  # Gets the index of cells with value inferior to the
+                # selected level
+                # Finds the difference between each set to discretize the model values in bins
+                wherebouts = [np.setdiff1d(whereru[i], whereru[i - 1]) for i in range(len(whereru) - 1, -1, -1)][::-1]
+                # Replace
+                scale_c = np.copy(scale01)
+                for i, v in enumerate(itv[:-1]):
+                    nat01[wherebouts[i]] = scale_c[i]
+
+                nl = nat01
+                # Removes duplicates
+                nlv = list(dict.fromkeys(nl))
+                nlv.sort()
+
+                fcols = [cmap(v) for v in nl]  # Where colors are defined for each cell
+                # scale01 = np.array(sorted(set(nl)))
+                cols = colors.ListedColormap([cmap(v) for v in scale01])  # Changed here !
+                cmap = cols
+
+                # Colorbar properties:
+                # boundaries = np.copy(itv)
+                boundaries = np.copy([0] + itv)
+                norm = colors.BoundaryNorm(boundaries, cmap.N)
+                formatter = None
+                ticks = boundaries
+
 
     plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = False
     plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = True
