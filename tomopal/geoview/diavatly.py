@@ -198,6 +198,7 @@ def model_map(polygons=None,
               log=1,
               aspect=1,
               cbpos=0.1,
+              ndec=1,
               stepx=None,
               stepy=None,
               folder=None,
@@ -311,7 +312,7 @@ def model_map(polygons=None,
                 cmap = cols
 
                 # Colorbar properties:
-                boundaries = np.array([np.round(b, 1) for b in itv])
+                boundaries = np.array([np.round(b, ndec) for b in itv])
                 # boundaries = sorted(set(nat))
                 norm = colors.BoundaryNorm(boundaries, cmap.N)
                 formatter = None
