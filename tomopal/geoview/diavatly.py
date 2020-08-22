@@ -271,7 +271,7 @@ def model_map(polygons=None,
             fcols = [cmap(norm(v)) for v in res]  # Each block receives a color based on their value.
             # boundaries = None  # Colorbar parameter
             boundaries = None  # To define ticks
-            ticks = [round(v, 2) for v in itv]
+            ticks = [round(v, ndec) for v in itv]
         else:  # If levels are desired
             scale01 = np.linspace(0, 1, len(itv))  # 0 -> 1 color values
             nat = np.zeros(res.shape)
@@ -419,7 +419,7 @@ def model_map(polygons=None,
                                     orientation='horizontal')
 
         cb1.outline.set_linewidth(0.5)
-        cb1.set_ticklabels(np.round(ticks, 2))
+        cb1.set_ticklabels(np.round(ticks, ndec))
         cb1.ax.tick_params(labelsize=labelsize)
         plt.setp(ax.spines.values(), linewidth=0.5)
         plt.setp(axcb.spines.values(), linewidth=0.1)
