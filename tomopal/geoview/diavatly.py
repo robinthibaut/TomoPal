@@ -199,6 +199,7 @@ def model_map(polygons=None,
               aspect=1,
               cbpos=0.1,
               ndec=1,
+              cmap_name='coolwarm',
               stepx=None,
               stepy=None,
               folder=None,
@@ -235,7 +236,7 @@ def model_map(polygons=None,
     res = np.copy(vals)  # Z-value
     levels = np.array(list([levels]))
 
-    cmap = cm.get_cmap('coolwarm')  # Color map
+    cmap = cm.get_cmap(cmap_name)  # Color map
 
     if res.any():
         if log:

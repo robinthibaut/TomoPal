@@ -196,15 +196,18 @@ def import_res(result_folder,
     onlyfiles = [f for f in listdir(result_folder) if isfile(join(result_folder, f))]  # Lists all the file in
     # requested folder
 
-    rho_files = [jp(result_folder, x) for x in onlyfiles if 'rho' and '.txt' in x]
+    rho_files = [jp(result_folder, x) for x in onlyfiles if 'rho' in x and '.txt' in x]
     pha_files = [jp(result_folder, x) for x in onlyfiles if '.pha' in x]
+    volt_files = [jp(result_folder, x) for x in onlyfiles if 'volt' in x and '.dat' in x]
     sens = jp(result_folder, 'sens.dat')
 
     r_array = np.array([])
     p_array = np.array([])
+    v_array = np.array([])
 
     if len(rho_files) > 0:
 
+        # Load resistance
         its_res = [int(os.path.basename(r).split('.')[0].strip('rho0').strip('rho')) for r in rho_files]
         nits = max(its_res)
 
@@ -214,8 +217,21 @@ def import_res(result_folder,
             iter = its_res.index(iteration)
 
         rlast = rho_files[iter]
-        rholast = np.array(datread(rlast)[1:])
+        rholast = np.array(datread(rlast, start=1))
         r_array = np.array([rholast[r][2] for r in range(len(rholast))])
+
+        # Load volt
+        its_volt = [int(os.path.basename(v).split('.')[0].strip('volt0').strip('volt')) for v in volt_files]
+
+        if iteration == -1:
+            iter_v = its_volt.index(nits)
+        else:
+            iter_v = its_volt.index(iteration)
+
+        vlast = volt_files[iter_v]
+        v_array = np.array(datread(vlast, start=1))
+
+        #  Load phase
         if len(pha_files) > 0:
             its_pha = [int(os.path.basename(r).split('.')[0].strip('rho0').strip('rho')) for r in pha_files]
             if iteration == -1:
@@ -224,11 +240,12 @@ def import_res(result_folder,
                 iterip = its_pha.index(iteration)
 
             iplast = pha_files[iterip]
-            phalast = np.array(datread(iplast)[1:])
+            phalast = np.array(datread(iplast, start=1))
             p_array = np.array([phalast[r][2] for r in range(len(phalast))])
 
+        # Load sensitivity
         try:
-            s_array = np.array(datread(sens)[1:])
+            s_array = np.array(datread(sens, start=1))
         except FileNotFoundError:
             s_array = []
 
@@ -236,12 +253,10 @@ def import_res(result_folder,
         warnings.warn('no results found')
 
     if return_file:
-        if p_array.any():
-            return [r_array, p_array, s_array], [rlast, iplast, sens]
-        else:
-            return [r_array, s_array], [rlast, sens]
+        return [r_array, p_array, v_array, s_array], [rlast, iplast, vlast, sens]
+
     else:
-        return [r_array, p_array, s_array]
+        return [r_array, p_array, v_array, s_array]
 
 
 def dirmaker(dirp):
