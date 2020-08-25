@@ -242,6 +242,8 @@ def import_res(result_folder,
             iplast = pha_files[iterip]
             phalast = np.array(datread(iplast, start=1))
             p_array = np.array([phalast[r][2] for r in range(len(phalast))])
+        else:
+            iplast = ''
 
         # Load sensitivity
         try:
