@@ -38,14 +38,18 @@ def order_vertices(vertices):
 
 class Transformation:
 
-    def __init__(self, file=None, bounds=None, dem=None, origin=None, name=None, working_space=None):
+    def __init__(self,
+                 file: str = None,
+                 bounds: list = None,
+                 dem: str = None,
+                 origin: list = None,
+                 name: str = None):
         """
         :param file: Results file containing block coordinates and associated values
         :param bounds: tuple: ((lat1, lon1), (lat2, lon2))
         :param dem: Digital Elevation Model file
         :param origin: Coordinates of the origin of the map (lat, lon)
         :param name: str: Name of the output file
-        :param working_space: str: Path to the working directory
         """
         self.block_file = file
 
