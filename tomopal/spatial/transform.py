@@ -67,11 +67,11 @@ class Transformation:
 
     def conversion(self):
 
-        try:
+        if type(self.block_data) is str:
             blocks = read_file(self.block_data)  # Raw mesh info
             # TODO: Optimize parse - implement for several output (res, ip..)
             blocks2d_flat = blocks[:, 1:9]  # Flat list of polygon vertices
-        except TypeError:
+        else:
             blocks = self.block_data
             blocks2d_flat = blocks[:, 1:9]
 
