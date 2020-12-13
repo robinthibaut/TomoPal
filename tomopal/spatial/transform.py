@@ -39,19 +39,20 @@ def order_vertices(vertices):
 class Transformation:
 
     def __init__(self,
-                 file: str = None,
+                 blocks_: str = None,
                  bounds: list = None,
                  dem: str = None,
                  origin: list = None,
                  name: str = None):
         """
-        :param file: Results file containing block coordinates and associated values
+        :param blocks_: Results file containing block coordinates and associated values
         :param bounds: tuple: ((lat1, lon1), (lat2, lon2))
         :param dem: Digital Elevation Model file
         :param origin: Coordinates of the origin of the map (lat, lon)
         :param name: str: Name of the output file
         """
-        self.block_file = file
+
+        self.block_data = blocks_
 
         if bounds is not None:
             self.bounds = np.array(bounds)
@@ -59,16 +60,20 @@ class Transformation:
         self.elevation_file = dem
         self.origin = origin
 
-        if name is None and file is not None:
-            self.name = os.path.splitext(os.path.basename(self.block_file))[0]
+        if name is None:
+            self.name = 'anonymous'
         else:
             self.name = name
 
     def conversion(self):
 
-        blocks = read_file(self.block_file)  # Raw mesh info
-        # TODO: Optimize parse - implement for several output (res, ip..)
-        blocks2d_flat = blocks[:, 1:9]  # Flat list of polygon vertices
+        try:
+            blocks = read_file(self.block_data)  # Raw mesh info
+            # TODO: Optimize parse - implement for several output (res, ip..)
+            blocks2d_flat = blocks[:, 1:9]  # Flat list of polygon vertices
+        except TypeError:
+            blocks = self.block_data
+            blocks2d_flat = blocks[:, 1:9]
 
         rho = blocks[:, 9:]  # Values associated to each block
 
