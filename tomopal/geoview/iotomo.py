@@ -122,10 +122,9 @@ class TomoVTK:
         smooth_loop.Update()
 
         # Save Polydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
-        writer = vtk.vtkPolyDataWriter()
+        writer = vtk.vtkXMLPolyDataWriter()
         writer.SetInputData(smooth_loop.GetOutput())
-        writer.SetFileTypeToBinary()
-        writer.SetFileName(os.path.join(self.output_dir, 'dem.vtk'))
-        writer.Update()
+        writer.SetFileName(os.path.join(self.output_dir, 'dem.vtp'))
+        writer.Write()
 
         return 0
