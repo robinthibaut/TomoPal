@@ -104,15 +104,15 @@ class ModelMaker(object):
                                     ticks=ticks,
                                     ticklocation='right',
                                     orientation='vertical')
-#
-#         textstr = """Select points in the figure by enclosing them within a polygon.
-# Press the 'esc' key to start a new polygon.
-# Try holding the 'shift' key to move all of the vertices.
-# Try holding the 'ctrl' key to move a single vertex."""
-#
-#         #axtxt = plt.axes([0.15, 0.0, 0.2, 0.15])
-#         props = dict(boxstyle='round', facecolor='green', alpha=0.5)
-#         ax.text(0, -0.2, textstr, transform=ax.transAxes, fontsize=10, bbox=props)
+        #
+        #         textstr = """Select points in the figure by enclosing them within a polygon.
+        # Press the 'esc' key to start a new polygon.
+        # Try holding the 'shift' key to move all of the vertices.
+        # Try holding the 'ctrl' key to move a single vertex."""
+        #
+        #         #axtxt = plt.axes([0.15, 0.0, 0.2, 0.15])
+        #         props = dict(boxstyle='round', facecolor='green', alpha=0.5)
+        #         ax.text(0, -0.2, textstr, transform=ax.transAxes, fontsize=10, bbox=props)
 
         self.vinput = TextBox(axbox, label=None, initial='0')  # Text box to input the value to input
         self.vinput.on_submit(self.button_submit)  # What happens when pressing enter
@@ -131,11 +131,11 @@ class ModelMaker(object):
 
         if not values.any():
             facecolors = 'gray'
-            alpha = 0.35 # Opacity of the polygons - if no values assigned - soft gray
+            alpha = 0.35  # Opacity of the polygons - if no values assigned - soft gray
         else:
             cmap2 = cm.get_cmap('coolwarm')
             if values_log:
-                itv = 10**np.linspace(np.log10(min(values)), np.log10(max(values)), 12)  # Making a nice linear space
+                itv = 10 ** np.linspace(np.log10(min(values)), np.log10(max(values)), 12)  # Making a nice linear space
                 # out ouf log values to represent some ticks on the colorbar
                 norm2 = colors.LogNorm(vmin=min(values), vmax=max(values))  # Log norm for color bar
                 formatter = LogFormatter(10, labelOnlyBase=False)  # Necessary arg to produce the color scale
@@ -174,8 +174,8 @@ class ModelMaker(object):
             p.set_zorder(0)
             self.ax.add_collection(p)
 
-            padx = (xs.max() - xs.min())*0.05  # 5% padding in x-direction for visualization
-            pady = (ys.max() - ys.min())*0.05  # 5% padding
+            padx = (xs.max() - xs.min()) * 0.05  # 5% padding in x-direction for visualization
+            pady = (ys.max() - ys.min()) * 0.05  # 5% padding
             self.ax.set_xlim(xs.min() - padx, xs.max() + padx)
             self.ax.set_ylim(ys.min() - pady, ys.max() + pady)
 
@@ -249,7 +249,7 @@ class ModelMaker(object):
 
             try:
                 vals_cb.sort()
-                bounds = vals_cb + [max(vals_cb)*1.1]  # Adding one bound more to have enough intervals
+                bounds = vals_cb + [max(vals_cb) * 1.1]  # Adding one bound more to have enough intervals
                 ticks = vals_cb  # Ticks labels
                 cbnorm = colors.BoundaryNorm(bounds, cols.N)
                 mcb = colorbar.ColorbarBase(self.axcb,
@@ -311,8 +311,8 @@ class ModelMaker(object):
             with open(self.model_name, 'w') as mm:  # The final output is a 1-column file with the values assigned,
                 # in the same order as the blocks provided. The file is opened and saved every time a modification is
                 # made.
-                mm.write(str(int(self.Npts))+'\n')
-                [mm.write(str(fr)+'\n') for fr in self.final_results]
+                mm.write(str(int(self.Npts)) + '\n')
+                [mm.write(str(fr) + '\n') for fr in self.final_results]
                 mm.close()
 
     def disconnect(self):  # When finished
@@ -322,4 +322,3 @@ class ModelMaker(object):
         """
         print('Job done')
         self.poly.disconnect_events()
-

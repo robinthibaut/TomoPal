@@ -4,7 +4,7 @@ from os.path import join as jp
 
 import numpy as np
 
-from tomopal.crtomopy.crtomo.crc import Crtomo, datread, mesh_geometry, import_res, mtophase
+from tomopal.crtomopy.crtomo import Crtomo, datread, mesh_geometry, import_res, mtophase
 from tomopal.crtomopy.parent import inventory
 from tomopal.geoview.diavatly import model_map  # To plot results
 
@@ -159,7 +159,6 @@ starting_model = 0
 # 39 Starting model file
 starting_model_file = None
 
-
 # %% 19 ISO file 1
 iso_file1 = jp(iso_dir, 'iso.dat')
 
@@ -246,7 +245,7 @@ else:  # if you only have resistivity data to load
 cut = np.log10(4500)
 rest[rest > cut] = cut
 res_levels = 10 ** np.linspace(min(rest), cut, 10)  # Define a linear space for the color map
-rtp = 10**np.copy(rest)
+rtp = 10 ** np.copy(rest)
 
 # Use the model_map function to display the computed resistivity:
 # log=1 because we want a logarithmic scale.

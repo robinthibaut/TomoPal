@@ -352,7 +352,6 @@ def model_map(polygons=None,
                 formatter = None
                 ticks = boundaries
 
-
     plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = False
     plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = True
 
@@ -409,7 +408,7 @@ def model_map(polygons=None,
         # Colorbar
         # rect = [left, bottom, width, height
         left = 0.
-        axcb = plt.axes([left, cbpos, 1-left, 0.035])
+        axcb = plt.axes([left, cbpos, 1 - left, 0.035])
         cb1 = colorbar.ColorbarBase(axcb,
                                     cmap=cmap,
                                     norm=norm,

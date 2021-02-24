@@ -37,7 +37,7 @@ def hist(nor_rec, bins, quantile=None):
     if quantile is None:
         quantile = 1
     # Create DF and compute relative (%) reciprocal error
-    diff = pd.DataFrame(data=np.abs(np.subtract(nor_rec[:, 0], nor_rec[:, 1])/nor_rec[:, 0]), columns=['diff'])
+    diff = pd.DataFrame(data=np.abs(np.subtract(nor_rec[:, 0], nor_rec[:, 1]) / nor_rec[:, 0]), columns=['diff'])
     # Display some statistics
     print(diff.describe())
     # Extracts value corresponding to desired quantile

@@ -65,7 +65,7 @@ class TomoVTK:
         for e, b in enumerate(blocks):
             points.InsertNextPoint(b)
 
-        ncells = len(blocks)//4
+        ncells = len(blocks) // 4
         # Insert cells in UGrid
         [ugrid.InsertNextCell(vtk.VTK_QUAD, 4, list(range(e * 4, e * 4 + 4))) for e in range(ncells)]
         ugrid.SetPoints(points)  # Set points
