@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-my_pckg = find_packages(include=['tomopal'])
+my_pckg = find_packages()
 print(my_pckg)
 
 setup(
     name='tomopal',
-    version='1.0.2',
+    version='1.0.5',
     packages=my_pckg,
     include_package_data=True,
     url='https://github.com/robinthibaut/tomopal',

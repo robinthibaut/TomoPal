@@ -1,6 +1,0 @@
-include tomopal/base/*
-include tomopal/crtomopy/*
-include tomopal/geoview/*
-include tomopal/model/*
-include tomopal/post/*
-include tomopal/spatial/*
