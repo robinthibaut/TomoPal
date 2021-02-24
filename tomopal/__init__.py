@@ -1,13 +1,10 @@
-__name__ = 'Tomopal'
+__name__ = 'tomopal'
 __author__ = 'Robin Thibaut'
 
-from tomopal.crtomopy.crtomo import crc
-from tomopal.crtomopy.parent import inventory
+from tomopal import crtomopy
+from tomopal import geoview
+from tomopal import model
+from tomopal import post
+from tomopal import spatial
 
-from tomopal.geoview import diavatly, iotomo
-
-from tomopal.model import mohinh
-
-from tomopal.post import analysis
-
-from tomopal.spatial import transform
+__all__ = ['crtomopy', 'geoview', 'model', 'post', 'spatial']
