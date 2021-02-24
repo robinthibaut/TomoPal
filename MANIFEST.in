@@ -1,0 +1,3 @@
+include tomopal/crtomopy/data/demo/demo_data.dat
+include tomopal/crtomopy/data/demo/demo_elecs.dat
+include tomopal/crtomopy/data/demo/demo_elevation.dat
