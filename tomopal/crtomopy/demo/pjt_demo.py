@@ -4,9 +4,9 @@ from os.path import join as jp
 
 import numpy as np
 
-from tomopal.crtomopy.crtomo import Crtomo, datread, mesh_geometry, import_res, mtophase
-from tomopal.crtomopy.parent import inventory
-from tomopal.geoview.diavatly import model_map  # To plot results
+from tomopal.crtomopy.crtomo.crc import Crtomo, datread, mesh_geometry, import_res, mtophase
+from ..parent import inventory
+from ...geoview.diavatly import model_map  # To plot results
 
 # %% Directories
 
