@@ -5,7 +5,7 @@ print(my_pckg)
 
 setup(
     name='tomopal',
-    version='1.0.17',
+    version='1.0.18',
     packages=my_pckg,
     include_package_data=True,
     url='https://github.com/robinthibaut/tomopal',
