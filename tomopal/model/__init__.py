@@ -1,3 +1,3 @@
 __all__ = ['mohinh']
 
-from . import *
+from . import mohinh

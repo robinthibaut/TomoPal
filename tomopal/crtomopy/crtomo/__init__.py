@@ -1,3 +1,3 @@
 __all__ = ['crc']
 
-from . import *
+from . import crc
