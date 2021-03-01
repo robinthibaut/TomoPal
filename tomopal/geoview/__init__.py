@@ -1,3 +1,3 @@
-__all__ = ['diavatly', 'iotomo']
+__all__ = ["diavatly", "iotomo"]
 
 from . import diavatly, iotomo

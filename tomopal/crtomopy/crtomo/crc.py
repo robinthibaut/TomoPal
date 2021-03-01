@@ -6,7 +6,8 @@ import shutil
 import subprocess as sp
 import warnings
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile
+from os.path import join
 from os.path import join as jp
 from shutil import copyfile
 
@@ -14,7 +15,6 @@ import numpy as np
 from scipy.interpolate import interp1d as f1d
 
 from tomopal.crtomopy.parent import inventory
-
 
 #  Functions
 
@@ -28,7 +28,7 @@ def path_leaf(path):
 def datread(file=None, start=0, end=None):
     # end must be set to None and NOT -1
     """Reads space separated dat file"""
-    with open(file, 'r') as fr:
+    with open(file, "r") as fr:
         lines = np.copy(fr.readlines())[start:end]
         try:
             op = np.array([list(map(float, line.split())) for line in lines])
@@ -44,7 +44,7 @@ def res2mod(file, processing_function=None):
     # nelem
     # resistivity (ohm*m) -- 0 -- log10(resistivity) -- IP (mrad)
 
-    fext = file.split('.')[-1]
+    fext = file.split(".")[-1]
 
     f = datread(file)
     sm = [f[i][2] for i in range(1, len(f))]
@@ -52,12 +52,15 @@ def res2mod(file, processing_function=None):
     if processing_function:
         sm = processing_function(np.array(sm))
 
-    fname = file.replace(fext, 'dat')
+    fname = file.replace(fext, "dat")
 
-    with open(fname, 'w') as smf:
-        smf.write(str(int(f[0][0])) + '\n')
-        [smf.write(str(10 ** (sm[i])) + '\t' + '0' + '\t' + str(sm[i]) + '\t' + '0' + '\n')
-         for i in range(0, len(sm))]
+    with open(fname, "w") as smf:
+        smf.write(str(int(f[0][0])) + "\n")
+        [
+            smf.write(
+                str(10**(sm[i])) + "\t" + "0" + "\t" + str(sm[i]) + "\t" +
+                "0" + "\n") for i in range(0, len(sm))
+        ]
         smf.close()
 
     return fname
@@ -77,9 +80,9 @@ def flag(n):
     """
 
     if n == 0:
-        return 'F'
+        return "F"
     else:
-        return 'T'
+        return "T"
 
 
 def write_data(nelem=0,
@@ -103,24 +106,22 @@ def write_data(nelem=0,
     crdata = data
     es = electrode_spacing
 
-    crdata[:, [0, 1, 2, 3]] = (crdata[:,
-                               [0, 1, 2, 3]] + es) / es  # Convert the electrode x-position to electrodes number.
+    crdata[:, [0, 1, 2, 3]] = (
+        crdata[:, [0, 1, 2, 3]] +
+        es) / es  # Convert the electrode x-position to electrodes number.
 
     if m2p != 1:
         crdata[:, -1] *= m2p
 
-    crdataf = str(nelem) + '\n' + '\n'.join([' '.join(list(map(str, l))) for l in crdata])
+    crdataf = (str(nelem) + "\n" +
+               "\n".join([" ".join(list(map(str, l))) for l in crdata]))
 
-    with open(data_op_file, 'w') as ndf:
+    with open(data_op_file, "w") as ndf:
         ndf.write(crdataf)
         ndf.close()
 
 
-def mtophase(ncycles=0,
-             pulse_l=0,
-             tmin=0,
-             tmax=0,
-             mpath=None):
+def mtophase(ncycles=0, pulse_l=0, tmin=0, tmax=0, mpath=None):
     """
     Run mtophase.exe and loads return the conversion factor.
     :param ncycles: number of cycles of injected square wave (with 50% duty cycle)
@@ -133,31 +134,32 @@ def mtophase(ncycles=0,
 
     if mpath is None:
         main_dir = inventory.hello()
-        mpath = jp(main_dir, 'ip')
+        mpath = jp(main_dir, "ip")
 
     if not os.path.exists(mpath):
-        warnings.warn(mpath + ' folder not found')
+        warnings.warn(mpath + " folder not found")
 
-    params = list(map(str, [ncycles, pulse_l, tmin, tmax]))  # Transforms the params input to string
+    # Transforms the params input to string
+    params = list(map(str, [ncycles, pulse_l, tmin, tmax]))
 
-    minf = jp(mpath, 'MtoPhase.cfg')  # Writing config file
+    minf = jp(mpath, "MtoPhase.cfg")  # Writing config file
 
-    with open(minf, 'w') as ms:
-        ms.write('\n'.join(params))
+    with open(minf, "w") as ms:
+        ms.write("\n".join(params))
         ms.close()
 
     #  Running m2p exe file
-    if not os.path.exists(jp(mpath, 'mtophase.exe')):
-        warnings.warn('mtophase.exe not found')
+    if not os.path.exists(jp(mpath, "mtophase.exe")):
+        warnings.warn("mtophase.exe not found")
 
     os.chdir(mpath)
     try:
-        sp.call([jp(mpath, 'mtophase.exe')])  # Run
+        sp.call([jp(mpath, "mtophase.exe")])  # Run
     except Exception as e:
         print(e)
     os.chdir(os.path.dirname(mpath))
 
-    mm = open(jp(mpath, 'MtoPhase.dat'), 'r').readlines()
+    mm = open(jp(mpath, "MtoPhase.dat"), "r").readlines()
     ms = mm[0].split()
     f = float(ms[0])
 
@@ -170,20 +172,20 @@ def crtomo_file_shortener(f1, f2):
 
     if f2:  # If file is different than None
 
-        exefolder = f1.replace(jp('\\', path_leaf(f1)), '')  # Remove file name from path
+        # Remove file name from path
+        exefolder = f1.replace(jp("\\", path_leaf(f1)), "")
 
         if exefolder in f2:
-            fs = '.\\' + f2.replace(exefolder, '')  # CRtomo can not deal with long paths
+            # CRtomo can not deal with long paths
+            fs = ".\\" + f2.replace(exefolder, "")
         else:
             fs = f2
             if len(f2) == len(path_leaf(f2)):
-                fs = '.\\' + f2
+                fs = ".\\" + f2
     return fs
 
 
-def import_res(result_folder,
-               iteration=0,
-               return_file=0):
+def import_res(result_folder, iteration=0, return_file=0):
     """
     :param return_file: bool: if True, returns the path of the created file
     :param result_folder: str: FOLDER containing results files .rho .pha
@@ -193,13 +195,19 @@ def import_res(result_folder,
 
     iteration = iteration - 1
 
-    onlyfiles = [f for f in listdir(result_folder) if isfile(join(result_folder, f))]  # Lists all the file in
+    onlyfiles = [
+        f for f in listdir(result_folder) if isfile(join(result_folder, f))
+    ]  # Lists all the file in
     # requested folder
 
-    rho_files = [jp(result_folder, x) for x in onlyfiles if 'rho' in x and '.txt' in x]
-    pha_files = [jp(result_folder, x) for x in onlyfiles if '.pha' in x]
-    volt_files = [jp(result_folder, x) for x in onlyfiles if 'volt' in x and '.dat' in x]
-    sens = jp(result_folder, 'sens.dat')
+    rho_files = [
+        jp(result_folder, x) for x in onlyfiles if "rho" in x and ".txt" in x
+    ]
+    pha_files = [jp(result_folder, x) for x in onlyfiles if ".pha" in x]
+    volt_files = [
+        jp(result_folder, x) for x in onlyfiles if "volt" in x and ".dat" in x
+    ]
+    sens = jp(result_folder, "sens.dat")
 
     r_array = np.array([])
     p_array = np.array([])
@@ -208,7 +216,10 @@ def import_res(result_folder,
     if len(rho_files) > 0:
 
         # Load resistance
-        its_res = [int(os.path.basename(r).split('.')[0].strip('rho0').strip('rho')) for r in rho_files]
+        its_res = [
+            int(os.path.basename(r).split(".")[0].strip("rho0").strip("rho"))
+            for r in rho_files
+        ]
         nits = max(its_res)
 
         if iteration == -1:
@@ -221,7 +232,11 @@ def import_res(result_folder,
         r_array = np.array([rholast[r][2] for r in range(len(rholast))])
 
         # Load volt
-        its_volt = [int(os.path.basename(v).split('.')[0].strip('volt0').strip('volt')) for v in volt_files]
+        its_volt = [
+            int(
+                os.path.basename(v).split(".")[0].strip("volt0").strip("volt"))
+            for v in volt_files
+        ]
 
         if iteration == -1:
             iter_v = its_volt.index(nits)
@@ -233,7 +248,11 @@ def import_res(result_folder,
 
         #  Load phase
         if len(pha_files) > 0:
-            its_pha = [int(os.path.basename(r).split('.')[0].strip('rho0').strip('rho')) for r in pha_files]
+            its_pha = [
+                int(
+                    os.path.basename(r).split(".")[0].strip("rho0").strip(
+                        "rho")) for r in pha_files
+            ]
             if iteration == -1:
                 iterip = its_pha.index(nits)
             else:
@@ -243,7 +262,7 @@ def import_res(result_folder,
             phalast = np.array(datread(iplast, start=1))
             p_array = np.array([phalast[r][2] for r in range(len(phalast))])
         else:
-            iplast = ''
+            iplast = ""
 
         # Load sensitivity
         try:
@@ -252,10 +271,11 @@ def import_res(result_folder,
             s_array = []
 
     else:
-        warnings.warn('no results found')
+        warnings.warn("no results found")
 
     if return_file:
-        return [r_array, p_array, v_array, s_array], [rlast, iplast, vlast, sens]
+        return [r_array, p_array, v_array,
+                s_array], [rlast, iplast, vlast, sens]
 
     else:
         return [r_array, p_array, v_array, s_array]
@@ -302,8 +322,11 @@ def mesh_geometry(mesh_file):
     # Reading mesh results
     # msh = datread(mesh_file) # Deprecated
 
-    with open(mesh_file, 'r') as fr:
-        msh = np.array([list(map(float, l.replace('T', '').split())) for l in fr.readlines()])
+    with open(mesh_file, "r") as fr:
+        msh = np.array([
+            list(map(float,
+                     l.replace("T", "").split())) for l in fr.readlines()
+        ])
 
     nnodes = int(msh[0][0])
     nelem = int(msh[1][1])
@@ -311,8 +334,10 @@ def mesh_geometry(mesh_file):
     nlin = int(msh[0][4])
 
     nodes = np.array(msh[4:(nnodes + 4)])
-    xn = np.array(list(chunks([nodes[i][1] for i in range(nnodes)], ncol + 1))).flatten()
-    yn = np.array(list(chunks([nodes[i][2] for i in range(nnodes)], nlin + 1))).flatten()
+    xn = np.array(list(chunks([nodes[i][1] for i in range(nnodes)],
+                              ncol + 1))).flatten()
+    yn = np.array(list(chunks([nodes[i][2] for i in range(nnodes)],
+                              nlin + 1))).flatten()
 
     xy = np.array([[xn[i], yn[i]] for i in range(len(xn))])
 
@@ -330,12 +355,13 @@ def mesh_geometry(mesh_file):
                 [layers[i, j, 0], layers[i, j, 1]],
                 [layers[i + 1, j, 0], layers[i + 1, j, 1]],
                 [layers[i + 1, j + 1, 0], layers[i + 1, j + 1, 1]],
-                [layers[i + 1, j + 1, 0], layers[i, j + 1, 1]]
+                [layers[i + 1, j + 1, 0], layers[i, j + 1, 1]],
             ])
 
     blocks = np.array(blocks)
 
-    centerxy = np.array([[np.mean(blocks[i, :, 0]), np.mean(blocks[i, :, 1])] for i in range(nelem)])
+    centerxy = np.array([[np.mean(blocks[i, :, 0]),
+                          np.mean(blocks[i, :, 1])] for i in range(nelem)])
 
     return ncol, nlin, nelem, blocks, centerxy, nodes
 
@@ -387,17 +413,18 @@ def neighbor(abcd, h):
 
 
 class Crtomo:
-
-    def __init__(self,
-                 working_dir='\\',  # Some defaults folders
-                 data_dir='\\',
-                 mesh_dir='\\',
-                 iso_dir='\\',
-                 ref_dir='\\',
-                 start_dir='\\',
-                 results_dir='\\',
-                 crtomo_exe='crtomo.exe',
-                 mesh_exe='mesh.exe'):
+    def __init__(
+        self,
+        working_dir="\\",  # Some defaults folders
+        data_dir="\\",
+        mesh_dir="\\",
+        iso_dir="\\",
+        ref_dir="\\",
+        start_dir="\\",
+        results_dir="\\",
+        crtomo_exe="crtomo.exe",
+        mesh_exe="mesh.exe",
+    ):
 
         self.working_dir = working_dir
         self.data_dir = data_dir
@@ -421,32 +448,29 @@ class Crtomo:
 
         self.crtomo_exe = crtomo_exe
 
-        if not os.path.exists(crtomo_exe):  # Check if the crtomo exe files can be found.
-            warnings.warn('Can not find crtomo executable')
+        # Check if the crtomo exe files can be found.
+        if not os.path.exists(crtomo_exe):
+            warnings.warn("Can not find crtomo executable")
 
         self.mesh_exe = mesh_exe
 
-        if not os.path.exists(mesh_exe):  # Check if the crtomo exe files can be found.
-            warnings.warn('Can not find mesh executable')
+        # Check if the crtomo exe files can be found.
+        if not os.path.exists(mesh_exe):
+            warnings.warn("Can not find mesh executable")
 
-        self.rf = ''  # Results folder
-        self.mf = ''  # Mesh data file
-        self.ef = ''  # Elec data file
-        self.df = ''  # Data file
-        self.rwf = ''  # Reference model weights file
-        self.iso_f1 = ''  # ISO file 1
-        self.iso_f2 = ''  # ISO file 1
-        self.smf = ''  # Starting model file
-        self.f1 = ''  # F1
-        self.rmf = ''  # Reference model file
-        self.f3 = ''  # F3
+        self.rf = ""  # Results folder
+        self.mf = ""  # Mesh data file
+        self.ef = ""  # Elec data file
+        self.df = ""  # Data file
+        self.rwf = ""  # Reference model weights file
+        self.iso_f1 = ""  # ISO file 1
+        self.iso_f2 = ""  # ISO file 1
+        self.smf = ""  # Starting model file
+        self.f1 = ""  # F1
+        self.rmf = ""  # Reference model file
+        self.f3 = ""  # F3
 
-    def meshmaker(self,
-                  abmn=None,
-                  electrode_spacing=5,
-                  elevation_data=None
-                  ):
-
+    def meshmaker(self, abmn=None, electrode_spacing=5, elevation_data=None):
         """
         Generates crtomo-readable mesh files.
         :param abmn: np.array containing x-coordinates of electrodes in METERS
@@ -468,24 +492,31 @@ class Crtomo:
 
         epx = list(range(0, extent + es, es))
 
-        epn = 'elec1.dat'
+        epn = "elec1.dat"
         epfn = jp(mesh_dir, epn)  # Electrode position file
 
-        with open(epfn, 'w') as elec:
-            [elec.write(str(i + 1) + ' ' + str(i * es) + '\n') for i in range(0, len(epx))]
+        with open(epfn, "w") as elec:
+            [
+                elec.write(str(i + 1) + " " + str(i * es) + "\n")
+                for i in range(0, len(epx))
+            ]
             elec.close()
 
         #  Electrodes elevation
 
-        fnel = f1d(elev[:, 0], elev[:, 1], kind='cubic',
-                   fill_value="extrapolate")  # Interpolation function for the elevation to fill the gaps.
+        fnel = f1d(
+            elev[:, 0], elev[:, 1], kind="cubic", fill_value="extrapolate"
+        )  # Interpolation function for the elevation to fill the gaps.
         elint = list(map(float, list(map(fnel, epx))))
 
-        evn = 'topo1.dat'
+        evn = "topo1.dat"
         evf = jp(mesh_dir, evn)  # Electrode elevation file
 
-        with open(evf, 'w') as elev:
-            [elev.write(str(i * es) + ' ' + str(elint[i]) + '\n') for i in range(0, len(epx))]
+        with open(evf, "w") as elev:
+            [
+                elev.write(str(i * es) + " " + str(elint[i]) + "\n")
+                for i in range(0, len(epx))
+            ]
             elev.close()
 
         ms_exe_f = jp(mesh_dir, path_leaf(mesh_exe_name))
@@ -496,33 +527,39 @@ class Crtomo:
         #     else:
         #         print('Can not find mesh executable')
 
-        if os.path.exists(self.mesh_exe):  # Check if the mesh exe files can be found.
+        # Check if the mesh exe files can be found.
+        if os.path.exists(self.mesh_exe):
             if not os.path.exists(jp(self.mesh_dir, path_leaf(mesh_exe_name))):
                 copyfile(self.mesh_exe, ms_exe_f)
         else:
-            print('Can not find mesh executable')
+            print("Can not find mesh executable")
         self.mesh_exe = ms_exe_f
 
-        mesh_short = '.\\'
+        mesh_short = ".\\"
         epfn = crtomo_file_shortener(ms_exe_f, epfn)
         evf = crtomo_file_shortener(ms_exe_f, evf)
 
         #  Writing mesh.in file
-        meshparams = ["{}".format(mesh_short),
-                      "{}".format(epfn),
-                      "Mesh", "2", "{}".format(evf),
-                      "0 0",
-                      "0.1 20 0.01 0.05"]
+        meshparams = [
+            "{}".format(mesh_short),
+            "{}".format(epfn),
+            "Mesh",
+            "2",
+            "{}".format(evf),
+            "0 0",
+            "0.1 20 0.01 0.05",
+        ]
 
-        meshinf = jp(os.path.dirname(self.mesh_exe), 'mesh.in')
+        meshinf = jp(os.path.dirname(self.mesh_exe), "mesh.in")
 
-        with open(meshinf, 'w') as ms:
-            ms.write('\n'.join(meshparams))
+        with open(meshinf, "w") as ms:
+            ms.write("\n".join(meshparams))
             ms.close()
 
         #  Running mesh exe file
 
-        mmdir = jp(mesh_dir, 'Model')  # CRTOMO automatically loads the results in a folder called 'Model'
+        # CRTOMO automatically loads the results in a folder called 'Model'
+        mmdir = jp(mesh_dir, "Model")
 
         try:
             if not os.path.exists(mmdir):
@@ -534,7 +571,7 @@ class Crtomo:
         sp.call([self.mesh_exe])  # Run
         os.chdir(self.working_dir)
 
-        msh = datread(jp(mmdir, 'Mesh.msh'))
+        msh = datread(jp(mmdir, "Mesh.msh"))
         nelem = int(msh[1][1])
 
         #  Builing final mesh
@@ -551,103 +588,113 @@ class Crtomo:
         # 2 - Where's there's one column, take it and place it on the right of the two previous one. Move the three
         # of them to the right and add a new column like step 1.
 
-        l1 = [i for i, x in enumerate(nc) if x == 1]  # Index of rows of length 1
+        # Index of rows of length 1
+        l1 = [i for i, x in enumerate(nc) if x == 1]
         cidx2 = l1[0]
         b2 = l1[-1]
 
-        l2 = [i for i, x in enumerate(nc) if x == 2]  # Index of rows of length 2
+        # Index of rows of length 2
+        l2 = [i for i, x in enumerate(nc) if x == 2]
         cidx3 = l2[0]
         b3 = l2[-1]
 
         for i in range(len(l2)):
             msh[l2[i]] += msh[l1[i]]  # Inserting column
 
-        [msh[l2[i]].insert(0, int(i + 1)) for i in range(len(l2))]  # Inserting column 1 2 3 ...
+        # Inserting column 1 2 3 ...
+        [msh[l2[i]].insert(0, int(i + 1)) for i in range(len(l2))]
 
         msh = np.delete(msh, l1)  # Deleting column
 
         nc2 = [len(e) for e in msh]  # New len array
 
-        l5 = [i for i, x in enumerate(nc2) if x == 5]  # Index of rows of length 5
+        # Index of rows of length 5
+        l5 = [i for i, x in enumerate(nc2) if x == 5]
         l5.pop(0)  # First element = header, not necessary
         for j in range(len(l5)):  # Adding columns as required
-            msh[l5[j]] += ['T', 'T', 'T', 'T', int(10 + j), 'T', int(2 + j), 'T']
+            msh[l5[j]] += [
+                "T", "T", "T", "T",
+                int(10 + j), "T",
+                int(2 + j), "T"
+            ]
 
         adj = [msh[l5[i]][1:5] for i in range(len(l5))]  # Preparing 'adj' file
         adj = np.array([list(map(int, a)) for a in adj])
 
-        print('neighbourg process begins, there are {} elements'.format(nelem))
+        print("neighbourg process begins, there are {} elements".format(nelem))
 
         adji = [neighbor(adj, i) for i in range(nelem)]
 
-        print('neighbourg process over')
+        print("neighbourg process over")
 
         for j in range(len(l5)):  # Adding columns as required
             msh[l5[j]] += list(map(str, adji[j]))
 
         # Export final mesh
 
-        mesh_file_name = jp(mesh_dir, 'Mesh.dat')  # Export Mesh.msh as Mesh.dat and Mesh.elc as elec.dat
+        # Export Mesh.msh as Mesh.dat and Mesh.elc as elec.dat
+        mesh_file_name = jp(mesh_dir, "Mesh.dat")
 
-        meshdat = '\n'.join(['\t'.join(list(map(str, l))) for l in msh])
+        meshdat = "\n".join(["\t".join(list(map(str, l))) for l in msh])
 
-        with open(mesh_file_name, 'w') as md:
+        with open(mesh_file_name, "w") as md:
             md.write(meshdat)
             md.close()
 
-        elec_file_name = jp(mesh_dir, 'elec.dat')  #
+        elec_file_name = jp(mesh_dir, "elec.dat")  #
 
-        copyfile(jp(mmdir, 'Mesh.elc'), elec_file_name)  # Mesh.elc -> elec.dat
+        copyfile(jp(mmdir, "Mesh.elc"), elec_file_name)  # Mesh.elc -> elec.dat
 
-        print('mesh generated')
+        print("mesh generated")
 
-    def write_config(self,
-                     erase=0,
-                     mesh_file='Mesh.dat',
-                     elec_file='elec.dat',
-                     data_file='dataset.dat',
-                     result_folder='results',
-                     difference_inversion=0,
-                     fdi1=None,
-                     reference_model_file=None,
-                     fdi3=None,
-                     reference_model=0,
-                     data_difference=0,
-                     stochastic_inversion=0,
-                     prior_si=0,
-                     reference_weights_file=None,
-                     fincr=1,
-                     grid_type=1,
-                     arbitrary=5,
-                     vario=1,
-                     smoothing_x=1,
-                     smoothing_y=1,
-                     iso_file1='iso.dat',
-                     iso_file2='iso.dat',
-                     variogram_regularization=0,
-                     iterations=20,
-                     rms=1.0000,
-                     dc=1,
-                     robust=1,
-                     check_polarity=1,
-                     final_phase_improvement=0,
-                     individual_error=0,
-                     error_level=1,
-                     min_abs_error=0.00015,
-                     phase_error=0.15,
-                     hom_bkg_res=0,
-                     bkg_mag=160,
-                     bkg_pha=0,
-                     resolution_mtx=0,
-                     mgs=0,
-                     beta=0.0001,
-                     starting_model=0,
-                     starting_model_file='startmodel.dat',
-                     fwd_only=0,
-                     sink_node=0,
-                     node_bumber=3348,
-                     next_dset=0):
-
+    def write_config(
+        self,
+        erase=0,
+        mesh_file="Mesh.dat",
+        elec_file="elec.dat",
+        data_file="dataset.dat",
+        result_folder="results",
+        difference_inversion=0,
+        fdi1=None,
+        reference_model_file=None,
+        fdi3=None,
+        reference_model=0,
+        data_difference=0,
+        stochastic_inversion=0,
+        prior_si=0,
+        reference_weights_file=None,
+        fincr=1,
+        grid_type=1,
+        arbitrary=5,
+        vario=1,
+        smoothing_x=1,
+        smoothing_y=1,
+        iso_file1="iso.dat",
+        iso_file2="iso.dat",
+        variogram_regularization=0,
+        iterations=20,
+        rms=1.0000,
+        dc=1,
+        robust=1,
+        check_polarity=1,
+        final_phase_improvement=0,
+        individual_error=0,
+        error_level=1,
+        min_abs_error=0.00015,
+        phase_error=0.15,
+        hom_bkg_res=0,
+        bkg_mag=160,
+        bkg_pha=0,
+        resolution_mtx=0,
+        mgs=0,
+        beta=0.0001,
+        starting_model=0,
+        starting_model_file="startmodel.dat",
+        fwd_only=0,
+        sink_node=0,
+        node_bumber=3348,
+        next_dset=0,
+    ):
         """
         Writes the crtomo configuration file crtritime.cfg.
 
@@ -699,10 +746,13 @@ class Crtomo:
         :return:
         """
 
-        if not os.path.exists(result_folder):  # If the result folder does not exists:
+        # If the result folder does not exists:
+        if not os.path.exists(result_folder):
             os.makedirs(result_folder)  # Creates it
         else:
-            if erase:  # If it exists and erase option enabled, empties its content first!
+            if (
+                    erase
+            ):  # If it exists and erase option enabled, empties its content first!
                 deldir(result_folder)
             else:
                 pass
@@ -720,7 +770,8 @@ class Crtomo:
         data_file = crtomo_file_shortener(self.crtomo_exe, data_file)
 
         self.rwf = reference_weights_file  # Reference model weights file
-        reference_weights_file = crtomo_file_shortener(self.crtomo_exe, reference_weights_file)
+        reference_weights_file = crtomo_file_shortener(self.crtomo_exe,
+                                                       reference_weights_file)
 
         self.iso_f1 = iso_file1  # ISO file 1
         iso_file1 = crtomo_file_shortener(self.crtomo_exe, iso_file1)
@@ -731,13 +782,15 @@ class Crtomo:
         iso_file2 = crtomo_file_shortener(self.crtomo_exe, iso_file2)
 
         self.smf = starting_model_file  # Starting model file
-        starting_model_file = crtomo_file_shortener(self.crtomo_exe, starting_model_file)
+        starting_model_file = crtomo_file_shortener(self.crtomo_exe,
+                                                    starting_model_file)
 
         self.f1 = fdi1  # F1
         fdi1 = crtomo_file_shortener(self.crtomo_exe, fdi1)
 
         self.rmf = reference_model_file  # F2
-        reference_model_file = crtomo_file_shortener(self.crtomo_exe, reference_model_file)
+        reference_model_file = crtomo_file_shortener(self.crtomo_exe,
+                                                     reference_model_file)
 
         self.f3 = fdi3  # F3
         fdi3 = crtomo_file_shortener(self.crtomo_exe, fdi3)
@@ -787,57 +840,59 @@ class Crtomo:
 {40} ! Forward modelling only
 {41} ! Sink node activated
 {42} ! Node number (no boarder and away from electrode)
-{43} ! another dataset?""".format(mesh_file,
-                                  elec_file,
-                                  data_file,
-                                  rf_crtomo,
-                                  flag(difference_inversion),
-                                  fdi1,
-                                  reference_model_file,
-                                  fdi3,
-                                  flag(reference_model),
-                                  flag(data_difference),
-                                  flag(stochastic_inversion),
-                                  flag(prior_si),
-                                  reference_weights_file,
-                                  fincr,
-                                  grid_type,
-                                  arbitrary,
-                                  vario,
-                                  smoothing_x,
-                                  smoothing_y,
-                                  iso_file1,
-                                  iso_file2,
-                                  flag(variogram_regularization),
-                                  iterations,
-                                  rms,
-                                  flag(dc),
-                                  flag(robust),
-                                  flag(check_polarity),
-                                  flag(final_phase_improvement),
-                                  flag(individual_error),
-                                  error_level,
-                                  min_abs_error,
-                                  phase_error,
-                                  flag(hom_bkg_res),
-                                  bkg_mag,
-                                  bkg_pha,
-                                  flag(resolution_mtx),
-                                  flag(mgs),
-                                  beta,
-                                  flag(starting_model),
-                                  starting_model_file,
-                                  flag(fwd_only),
-                                  flag(sink_node),
-                                  node_bumber,
-                                  flag(next_dset))
+{43} ! another dataset?""".format(
+            mesh_file,
+            elec_file,
+            data_file,
+            rf_crtomo,
+            flag(difference_inversion),
+            fdi1,
+            reference_model_file,
+            fdi3,
+            flag(reference_model),
+            flag(data_difference),
+            flag(stochastic_inversion),
+            flag(prior_si),
+            reference_weights_file,
+            fincr,
+            grid_type,
+            arbitrary,
+            vario,
+            smoothing_x,
+            smoothing_y,
+            iso_file1,
+            iso_file2,
+            flag(variogram_regularization),
+            iterations,
+            rms,
+            flag(dc),
+            flag(robust),
+            flag(check_polarity),
+            flag(final_phase_improvement),
+            flag(individual_error),
+            error_level,
+            min_abs_error,
+            phase_error,
+            flag(hom_bkg_res),
+            bkg_mag,
+            bkg_pha,
+            flag(resolution_mtx),
+            flag(mgs),
+            beta,
+            flag(starting_model),
+            starting_model_file,
+            flag(fwd_only),
+            flag(sink_node),
+            node_bumber,
+            flag(next_dset),
+        )
 
-        with open(jp(os.path.dirname(self.crtomo_exe), 'crtritime.cfg'), 'w') as cf:
+        with open(jp(os.path.dirname(self.crtomo_exe), "crtritime.cfg"),
+                  "w") as cf:
             cf.write(template)
             cf.close()
 
     def run(self):
-
         """
         Copies all the input files to a 'param' folder within the inversion results folder and run the exe.
 
@@ -847,27 +902,43 @@ class Crtomo:
         print(self.rf)
 
         try:
-            if not os.path.exists(self.iso_f1):  # If no iso file exists, it automatically creates one
+            # If no iso file exists, it automatically creates one
+            if not os.path.exists(self.iso_f1):
                 ratio = 1
                 ncol, nlin, nelem, blocks, centerxy = mesh_geometry(self.mf)
                 isod = [[1, 1 * ratio] for i in range(nelem)]
-                isodat = str(nelem) + '\n' + '\n'.join([' '.join(list(map(str, l))) for l in isod])
-                with open(self.iso_f1, 'w') as md:
+                isodat = (
+                    str(nelem) + "\n" +
+                    "\n".join([" ".join(list(map(str, l))) for l in isod]))
+                with open(self.iso_f1, "w") as md:
                     md.write(isodat)
                     md.close()
         except Exception as e:
             print(e)
 
-        print('starting Crtomo')
+        print("starting Crtomo")
 
-        file_list = [self.mf, self.ef, self.df, self.rwf,
-                     self.iso_f1, self.iso_f2, self.smf, self.f1, self.rmf, self.f3]
+        file_list = [
+            self.mf,
+            self.ef,
+            self.df,
+            self.rwf,
+            self.iso_f1,
+            self.iso_f2,
+            self.smf,
+            self.f1,
+            self.rmf,
+            self.f3,
+        ]
 
-        pfn = jp(self.rf, 'config')
+        pfn = jp(self.rf, "config")
         if not os.path.exists(pfn):
             os.mkdir(pfn)
 
-        copyfile(jp(os.path.dirname(self.crtomo_exe), 'crtritime.cfg'), jp(pfn, 'crtritime.cfg'))  # Copies cfg file
+        copyfile(
+            jp(os.path.dirname(self.crtomo_exe), "crtritime.cfg"),
+            jp(pfn, "crtritime.cfg"),
+        )  # Copies cfg file
 
         for f in file_list:  # Copies each important file in the 'config' folder
             try:
@@ -878,4 +949,4 @@ class Crtomo:
 
         sp.call([self.crtomo_exe])  # Runs the exe
 
-        print('process over')
+        print("process over")
