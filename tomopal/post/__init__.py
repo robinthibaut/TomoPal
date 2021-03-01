@@ -1,3 +1,3 @@
-__all__ = ['analysis']
+__all__ = ["analysis"]
 
 from . import analysis

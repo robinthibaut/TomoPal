@@ -12,8 +12,9 @@ from scipy.interpolate import interp1d
 
 def read_file(file=None, header=0):
     """Reads space separated dat file"""
-    with open(file, 'r') as fr:
-        op = np.array([list(map(float, i.split())) for i in fr.readlines()[header:]])
+    with open(file, "r") as fr:
+        op = np.array(
+            [list(map(float, i.split())) for i in fr.readlines()[header:]])
     return op
 
 
@@ -24,25 +25,32 @@ def order_vertices(vertices):
     :return: Sorted vertices
     """
     # Compute center of vertices
-    center = \
-        tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), vertices), [len(vertices)] * 2))
+    center = tuple(
+        map(
+            operator.truediv,
+            reduce(lambda x, y: map(operator.add, x, y), vertices),
+            [len(vertices)] * 2,
+        ))
 
     # Sort vertices according to angle
-    so = \
-        sorted(vertices,
-               key=lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))))
+    so = sorted(
+        vertices,
+        key=lambda coord: (math.degrees(
+            math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))),
+    )
 
     return np.array(so)
 
 
 class Transformation:
-
-    def __init__(self,
-                 blocks_: str = None,
-                 bounds: list = None,
-                 dem: str = None,
-                 origin: list = None,
-                 name: str = None):
+    def __init__(
+        self,
+        blocks_: str = None,
+        bounds: list = None,
+        dem: str = None,
+        origin: list = None,
+        name: str = None,
+    ):
         """
         :param blocks_: Results file containing block coordinates and associated values
         :param bounds: tuple: ((lat1, lon1), (lat2, lon2))
@@ -60,7 +68,7 @@ class Transformation:
         self.origin = origin
 
         if name is None:
-            self.name = 'anonymous'
+            self.name = "anonymous"
         else:
             self.name = name
 
@@ -82,7 +90,7 @@ class Transformation:
         # Elevation data
         tif = 0
         if self.elevation_file is not None:
-            if '.tif' in self.elevation_file.lower():  # If tif file
+            if ".tif" in self.elevation_file.lower():  # If tif file
                 tif = 1
                 # Load tif file
                 z = rasterio.open(self.elevation_file)
@@ -102,21 +110,24 @@ class Transformation:
             else:  # If 2D x - z data
                 z = read_file(self.elevation_file)
                 # Interpolating function to fill missing values
-                fi = interp1d(z[:, 0], z[:, 1], fill_value='extrapolate')
+                fi = interp1d(z[:, 0], z[:, 1], fill_value="extrapolate")
 
                 def elevation(x_):
                     """
                     :return: Elevation (m)
                     """
                     return fi(x_)
+
         else:
+
             def elevation(*args):
                 return 0
 
         blocks2d = blocks2d_flat.reshape(-1, 4, 2)  # Reshape in (n, 4, 2)
 
         # %% Order vertices in each block to correspond to VTK requirements
-        blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])  # Blocks' vertices are now correctly ordered
+        # Blocks' vertices are now correctly ordered
+        blocks2d_vo = np.array([order_vertices(vs) for vs in blocks2d])
         # %% Add a new axis to make coordinates 3-D
         # We have now the axis along the profile line and the depth.
         shp = blocks2d_vo.shape
@@ -132,13 +143,15 @@ class Transformation:
         blocks3d = blocks3d.reshape(-1, 3)
 
         # Set the maximum elevation at 0
-        blocks3d[:, 2] -= np.min((np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].max())))
+        blocks3d[:, 2] -= np.min(
+            (np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].max())))
 
         # %% Coordinates conversion
         geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
         # Create an 'InverseLine' bounded by the profile endpoints.
-        profile = geod.InverseLine(self.bounds[0, 0], self.bounds[0, 1], self.bounds[1, 0], self.bounds[1, 1])
+        profile = geod.InverseLine(self.bounds[0, 0], self.bounds[0, 1],
+                                   self.bounds[1, 0], self.bounds[1, 1])
 
         def lat_lon(distance):
             """
@@ -147,9 +160,10 @@ class Transformation:
             :return: latitude WGS84 in decimal degrees, longitude WGS84 in decimal degrees
             """
 
-            g = profile.Position(distance, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
+            g = profile.Position(distance,
+                                 Geodesic.STANDARD | Geodesic.LONG_UNROLL)
 
-            return g['lat2'], g['lon2']
+            return g["lat2"], g["lon2"]
 
         blocks_wgs = np.copy(blocks3d)
 
@@ -165,7 +179,8 @@ class Transformation:
                 blocks_wgs[i, 2] = altitude
         else:
             for i in range(len(blocks_wgs)):
-                altitude = elevation(blocks_wgs[i, 0]) - np.abs(blocks_wgs[i, 2])
+                altitude = elevation(blocks_wgs[i, 0]) - np.abs(blocks_wgs[i,
+                                                                           2])
                 lat, lon = lat_lon(blocks_wgs[i, 0])
                 blocks_wgs[i, 0] = lat
                 blocks_wgs[i, 1] = lon
@@ -185,7 +200,8 @@ class Transformation:
             line = geod.InverseLine(lat_origin, long_origin, lat_p, lon_p)
             azi = line.azi1
             dis = line.s13
-            return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi))
+            return dis * math.sin(math.radians(azi)), dis * math.cos(
+                math.radians(azi))
 
         blocks_local = np.copy(blocks_wgs)
         # Update coordinates
@@ -205,7 +221,7 @@ class Transformation:
         """
         # TODO: add more DEM files input options
 
-        if '.tif' in dem_file.lower():
+        if ".tif" in dem_file.lower():
             # Load tif file
             dataset = rasterio.open(dem_file)
             # Elevation data:
@@ -214,6 +230,7 @@ class Transformation:
             def elevation(lat_, lon_):
                 idx = dataset.index(lon_, lat_)
                 return r[idx]
+
         else:  # Expects (lat, lon, elev) data file
             dataset = read_file(dem_file)
 
@@ -222,9 +239,10 @@ class Transformation:
 
             def elevation(lat_, lon_):
                 """Inverse Square Distance"""
-                d = np.sqrt((lon_ - points[:, 1]) ** 2 + (lat_ - points[:, 0]) ** 2)
+                d = np.sqrt((lon_ - points[:, 1])**2 +
+                            (lat_ - points[:, 0])**2)
                 if d.min() > 0:
-                    v = np.sum(values * (1 / d ** 2) / np.sum(1 / d ** 2))
+                    v = np.sum(values * (1 / d**2) / np.sum(1 / d**2))
                     return v
                 else:
                     return values[d.argmin()]
@@ -237,9 +255,10 @@ class Transformation:
         longs = np.linspace(bbox[0][1], bbox[1][1], n_x)
 
         # Define meshgrid whose vertices will be used to triangulate the area
-        xv, yv = np.meshgrid(lats, longs, sparse=False, indexing='xy')
+        xv, yv = np.meshgrid(lats, longs, sparse=False, indexing="xy")
         cs = np.stack((xv, yv), axis=2).reshape((-1, 2))  # Stack coordinates
-        dem_raw = np.array([[c[0], c[1], elevation(c[0], c[1])] for c in cs])  # Extract elevation
+        dem_raw = np.array([[c[0], c[1], elevation(c[0], c[1])]
+                            for c in cs])  # Extract elevation
 
         lat_origin, long_origin = self.origin
 
@@ -252,8 +271,13 @@ class Transformation:
             line = geod.InverseLine(lat_origin, long_origin, arg[0], arg[1])
             azi = line.azi1
             dis = line.s13
-            return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi)), arg[2]
+            return (
+                dis * math.sin(math.radians(azi)),
+                dis * math.cos(math.radians(azi)),
+                arg[2],
+            )
 
-        dem_local = np.array(list(map(dem_local_system, dem_raw)))  # Convert WGS to local coordinates in meters
+        # Convert WGS to local coordinates in meters
+        dem_local = np.array(list(map(dem_local_system, dem_raw)))
 
         return dem_local

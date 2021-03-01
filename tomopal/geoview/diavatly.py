@@ -6,9 +6,7 @@ from os.path import join as jp
 import matplotlib.patches as mptpatches
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import cm
-from matplotlib import colorbar
-from matplotlib import colors
+from matplotlib import cm, colorbar, colors
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon
 from matplotlib.ticker import LogFormatter
@@ -55,27 +53,38 @@ def refine_axis(widths, r_pt, ext, cnd, d_dim, a_lim):
         x0 = np.delete(x0, wherex)  # Delete old cells
         x0 = np.insert(x0, wherex[0], nwxs)  # insert new
 
-        cs = np.cumsum(x0)  # Cumulation of width should equal xlim, but it will not be the case, have to adapt width
+        # Cumulation of width should equal xlim, but it will not be the case, have to adapt width
+        cs = np.cumsum(x0)
         difx = xlim - cs[-1]
-        where_default = np.where(abs(x0 - dx) <= 5)[0]  # Location of cells whose widths will be adapted
-        where_left = where_default[np.where(where_default < wherex[0])]  # Where do we have the default cell size on the
+        # Location of cells whose widths will be adapted
+        where_default = np.where(abs(x0 - dx) <= 5)[0]
+        # Where do we have the default cell size on the
+        where_left = where_default[np.where(where_default < wherex[0])]
         # left
-        where_right = where_default[np.where((where_default >= wherex[0] + len(nwxs)))]  # And on the right
+        where_right = where_default[np.where(
+            (where_default >= wherex[0] + len(nwxs)))]  # And on the right
         lwl = len(where_left)
         lwr = len(where_right)
 
         if lwl > lwr:
-            rl = lwl / lwr  # Weights how many cells are on either sides of the refinement zone
-            dal = difx / ((lwl + lwr) / lwl)  # Splitting the extra widths on the left and right of the cells
+            rl = (
+                lwl / lwr
+            )  # Weights how many cells are on either sides of the refinement zone
+            # Splitting the extra widths on the left and right of the cells
+            dal = difx / ((lwl + lwr) / lwl)
             dal = dal + (difx - dal) / rl
             dar = difx - dal
         elif lwr > lwl:
-            rl = lwr / lwl  # Weights how many cells are on either sides of the refinement zone
-            dar = difx / ((lwl + lwr) / lwr)  # Splitting the extra widths on the left and right of the cells
+            rl = (
+                lwr / lwl
+            )  # Weights how many cells are on either sides of the refinement zone
+            # Splitting the extra widths on the left and right of the cells
+            dar = difx / ((lwl + lwr) / lwr)
             dar = dar + (difx - dar) / rl
             dal = difx - dar
         else:
-            dal = difx / ((lwl + lwr) / lwl)  # Splitting the extra widths on the left and right of the cells
+            # Splitting the extra widths on the left and right of the cells
+            dal = difx / ((lwl + lwr) / lwl)
             dar = difx - dal
 
         x0[where_left] = x0[where_left] + dal / lwl
@@ -99,10 +108,12 @@ def blocks_from_rc(rows, columns):
     blocks = []
     for c in range(nrow):
         for n in range(ncol):
-            b = [[c_sum[n] - delc[n], r_sum[c] - delr[c]],
-                 [c_sum[n] - delc[n], r_sum[c]],
-                 [c_sum[n], r_sum[c]],
-                 [c_sum[n], r_sum[c] - delr[c]]]
+            b = [
+                [c_sum[n] - delc[n], r_sum[c] - delr[c]],
+                [c_sum[n] - delc[n], r_sum[c]],
+                [c_sum[n], r_sum[c]],
+                [c_sum[n], r_sum[c] - delr[c]],
+            ]
             blocks.append(b)
     blocks = np.array(blocks)
 
@@ -129,7 +140,8 @@ def find_norm(array, levels):
 
     uv = levels
 
-    ls = np.linspace(0, 1, len(uv))  # Linear space from 0 to 1 with n values (color levels)
+    # Linear space from 0 to 1 with n values (color levels)
+    ls = np.linspace(0, 1, len(uv))
 
     nl = []  # List that will contain colors scaled from 0 to 1
 
@@ -163,22 +175,17 @@ def read_xyz(file):
         10-11 Block center
         12 Resistivity value for the block
     """
-    with open(file, 'r') as fr:
+    with open(file, "r") as fr:
         op = np.array([list(map(float, l.split())) for l in fr.readlines()])
 
     msh = op
 
-    blocks = np.array([
-        [
-            [msh[i, 1], msh[i, 2]],
-            [msh[i, 3], msh[i, 4]],
-            [msh[i, 5], msh[i, 6]],
-            [msh[i, 7], msh[i, 8]]
-        ]
-
-        for i in range(len(msh))
-
-    ])
+    blocks = np.array([[
+        [msh[i, 1], msh[i, 2]],
+        [msh[i, 3], msh[i, 4]],
+        [msh[i, 5], msh[i, 6]],
+        [msh[i, 7], msh[i, 8]],
+    ] for i in range(len(msh))])
 
     try:  # Sometimes res2dinv exports a 10th and 11th column with x-y center of the blocks
         xs = msh[:, 9]
@@ -187,30 +194,33 @@ def read_xyz(file):
         xs = None
         ys = None
 
-    res = msh[:, -1]  # Assumes that the last column is the resistivity, doesn't take into account IP yet
+    # Assumes that the last column is the resistivity, doesn't take into account IP yet
+    res = msh[:, -1]
 
     return blocks, xs, ys, res
 
 
-def model_map(polygons=None,
-              vals=np.array([]),
-              levels=0,
-              log=1,
-              aspect=1,
-              cbpos=0.1,
-              ndec=1,
-              cmap_name='coolwarm',
-              stepx=None,
-              stepy=None,
-              folder=None,
-              figname=None,
-              contour=None,
-              contours_path=None,
-              binned=False,
-              fontsize=5,
-              labelsize=5,
-              dpi=300,
-              extension='png'):
+def model_map(
+    polygons=None,
+    vals=np.array([]),
+    levels=0,
+    log=1,
+    aspect=1,
+    cbpos=0.1,
+    ndec=1,
+    cmap_name="coolwarm",
+    stepx=None,
+    stepy=None,
+    folder=None,
+    figname=None,
+    contour=None,
+    contours_path=None,
+    binned=False,
+    fontsize=5,
+    labelsize=5,
+    dpi=300,
+    extension="png",
+):
     """
 
     Given a mesh geometry and values, produces the colored mesh with the proper color scale
@@ -240,15 +250,17 @@ def model_map(polygons=None,
 
     if res.any():
         if log:
-            zb = np.array([np.log10(r) for r in res])  # Transforms to log10 values
+            # Transforms to log10 values
+            zb = np.array([np.log10(r) for r in res])
             if not levels.any():
-                itv = 10 ** np.linspace(min(zb), max(zb), 7)  # Creates a linear space between the two extremes values
+                # Creates a linear space between the two extremes values
+                itv = 10**np.linspace(min(zb), max(zb), 7)
                 # and raise it to the power of 10. I should allow the user to choose the levels.
             else:
                 if len(levels) >= 1:
                     itv = levels[0]
                 else:
-                    itv = 10 ** np.linspace(min(zb), max(zb), 7)
+                    itv = 10**np.linspace(min(zb), max(zb), 7)
 
         else:
             zb = np.copy(res)
@@ -256,7 +268,8 @@ def model_map(polygons=None,
                 itv = np.linspace(min(zb), max(zb), 12)
             else:
                 if len(levels) >= 1:
-                    itv = levels[0]  # If the continuous colorscale is selected, these ticks
+                    # If the continuous colorscale is selected, these ticks
+                    itv = levels[0]
                 # will be displayed.
                 else:
                     itv = np.linspace(min(zb), max(zb), 7)
@@ -264,12 +277,15 @@ def model_map(polygons=None,
         if not levels.any():
             if log:
                 norm = colors.LogNorm(vmin=min(res), vmax=max(res))  # Log norm
-                formatter = LogFormatter(10, labelOnlyBase=False)  # Necessary to produce the color scale
+                # Necessary to produce the color scale
+                formatter = LogFormatter(10, labelOnlyBase=False)
             else:
-                norm = colors.Normalize(vmin=min(zb), vmax=max(zb))  # Classic norm
+                norm = colors.Normalize(vmin=min(zb),
+                                        vmax=max(zb))  # Classic norm
                 formatter = None
 
-            fcols = [cmap(norm(v)) for v in res]  # Each block receives a color based on their value.
+            # Each block receives a color based on their value.
+            fcols = [cmap(norm(v)) for v in res]
             # boundaries = None  # Colorbar parameter
             boundaries = None  # To define ticks
             ticks = [round(v, ndec) for v in itv]
@@ -290,10 +306,14 @@ def model_map(polygons=None,
                 # res[wbm] = np.min(itv)
 
                 nat01[wb] = 1
-                whereru = [np.where(res <= v) for v in itv[1:-1]]  # Gets the index of cells with value inferior to
+                # Gets the index of cells with value inferior to
+                whereru = [np.where(res <= v) for v in itv[1:-1]]
                 # the selected level
                 # Finds the difference between each set to discretize the model values in bins
-                wherebouts = [np.setdiff1d(whereru[i], whereru[i - 1]) for i in range(len(whereru) - 1, -1, -1)][::-1]
+                wherebouts = [
+                    np.setdiff1d(whereru[i], whereru[i - 1])
+                    for i in range(len(whereru) - 1, -1, -1)
+                ][::-1]
                 # Replace
                 scale_c = np.copy(scale01)
                 for i, v in enumerate(itv[1:-1]):
@@ -307,9 +327,11 @@ def model_map(polygons=None,
                 nlv = list(dict.fromkeys(nl))
                 nlv.sort()
 
-                fcols = [cmap(v) for v in nl]  # Where colors are defined for each cell
+                # Where colors are defined for each cell
+                fcols = [cmap(v) for v in nl]
                 # scale01 = np.array(sorted(set(nl)))
-                cols = colors.ListedColormap([cmap(v) for v in scale01])  # Changed here !
+                cols = colors.ListedColormap([cmap(v) for v in scale01
+                                              ])  # Changed here !
                 cmap = cols
 
                 # Colorbar properties:
@@ -326,10 +348,14 @@ def model_map(polygons=None,
                 wb = np.where(res >= itv[-1])
                 nat01[wb] = 1
 
-                whereru = [np.where(res <= v) for v in itv]  # Gets the index of cells with value inferior to the
+                # Gets the index of cells with value inferior to the
+                whereru = [np.where(res <= v) for v in itv]
                 # selected level
                 # Finds the difference between each set to discretize the model values in bins
-                wherebouts = [np.setdiff1d(whereru[i], whereru[i - 1]) for i in range(len(whereru) - 1, -1, -1)][::-1]
+                wherebouts = [
+                    np.setdiff1d(whereru[i], whereru[i - 1])
+                    for i in range(len(whereru) - 1, -1, -1)
+                ][::-1]
                 # Replace
                 scale_c = np.copy(scale01)
                 for i, v in enumerate(itv[:-1]):
@@ -340,9 +366,11 @@ def model_map(polygons=None,
                 nlv = list(dict.fromkeys(nl))
                 nlv.sort()
 
-                fcols = [cmap(v) for v in nl]  # Where colors are defined for each cell
+                # Where colors are defined for each cell
+                fcols = [cmap(v) for v in nl]
                 # scale01 = np.array(sorted(set(nl)))
-                cols = colors.ListedColormap([cmap(v) for v in scale01])  # Changed here !
+                cols = colors.ListedColormap([cmap(v) for v in scale01
+                                              ])  # Changed here !
                 cmap = cols
 
                 # Colorbar properties:
@@ -352,8 +380,8 @@ def model_map(polygons=None,
                 formatter = None
                 ticks = boundaries
 
-    plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = False
-    plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = True
+    plt.rcParams["xtick.bottom"] = plt.rcParams["xtick.labelbottom"] = False
+    plt.rcParams["xtick.top"] = plt.rcParams["xtick.labeltop"] = True
 
     fig, ax = plt.subplots()
 
@@ -364,9 +392,13 @@ def model_map(polygons=None,
         patches.append(polygon)
     edgecolors = None
     if not res.any():
-        fcols = 'white'
-        edgecolors = 'gray'
-    p = PatchCollection(patches, alpha=1, facecolors=fcols, edgecolors=edgecolors, linewidths=0.2)
+        fcols = "white"
+        edgecolors = "gray"
+    p = PatchCollection(patches,
+                        alpha=1,
+                        facecolors=fcols,
+                        edgecolors=edgecolors,
+                        linewidths=0.2)
     ax.add_collection(p)
 
     # Add padding
@@ -407,16 +439,18 @@ def model_map(polygons=None,
         plt.subplots_adjust(left=0, bottom=0.2, right=1)
         # Colorbar
         # rect = [left, bottom, width, height
-        left = 0.
+        left = 0.0
         axcb = plt.axes([left, cbpos, 1 - left, 0.035])
-        cb1 = colorbar.ColorbarBase(axcb,
-                                    cmap=cmap,
-                                    norm=norm,
-                                    boundaries=boundaries,
-                                    ticks=ticks,
-                                    spacing='uniform',
-                                    format=formatter,
-                                    orientation='horizontal')
+        cb1 = colorbar.ColorbarBase(
+            axcb,
+            cmap=cmap,
+            norm=norm,
+            boundaries=boundaries,
+            ticks=ticks,
+            spacing="uniform",
+            format=formatter,
+            orientation="horizontal",
+        )
 
         cb1.outline.set_linewidth(0.5)
         cb1.set_ticklabels(np.round(ticks, ndec))
@@ -430,22 +464,26 @@ def model_map(polygons=None,
             # path_patches.append(mptpatches.PathPatch(p, facecolor='none', lw=2))
             for p in contours_path:
                 path_patches.append(mptpatches.PathPatch(p))
-            pc = PatchCollection(path_patches, facecolors='none', lw=0.5)
+            pc = PatchCollection(path_patches, facecolors="none", lw=0.5)
             ax.add_collection(pc)
 
         if contour:
-            xsd = np.array([np.mean(polygons[i, :, 0]) for i in range(len(polygons))])
-            ysd = np.array([np.mean(polygons[i, :, 1]) for i in range(len(polygons))])
+            xsd = np.array(
+                [np.mean(polygons[i, :, 0]) for i in range(len(polygons))])
+            ysd = np.array(
+                [np.mean(polygons[i, :, 1]) for i in range(len(polygons))])
             paths = get_contour_line(xsd, ysd, zb, contour)
             path_patches = []
             # path_patches.append(mptpatches.PathPatch(p, facecolor='none', lw=2))
             for p in paths:
                 path_patches.append(mptpatches.PathPatch(p))
-            pc = PatchCollection(path_patches, facecolors='none', lw=0.5)
+            pc = PatchCollection(path_patches, facecolors="none", lw=0.5)
             ax.add_collection(pc)
 
     if figname:
-        plt.savefig('{}.{}'.format(jp(folder, figname), extension), dpi=dpi, bbox_inches='tight')
+        plt.savefig("{}.{}".format(jp(folder, figname), extension),
+                    dpi=dpi,
+                    bbox_inches="tight")
 
 
 def DOI(d1, d2, r1, r2):
@@ -467,7 +505,8 @@ def DOI(d1, d2, r1, r2):
     xsd = [np.mean(blocksD1[i, :, 0]) for i in range(len(blocksD1))]
     ysd = [np.mean(blocksD1[i, :, 1]) for i in range(len(blocksD1))]
 
-    doi = np.abs((np.log10(resD2) - np.log10(resD1)) / (np.log10(r1) - np.log10(r2)))
+    doi = np.abs(
+        (np.log10(resD2) - np.log10(resD1)) / (np.log10(r1) - np.log10(r2)))
     doi = (doi - doi.min()) / (doi.max() - doi.min())
 
     return blocksD1, doi

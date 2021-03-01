@@ -1,3 +1,3 @@
-__all__ = ['inventory']
+__all__ = ["inventory"]
 
 from . import inventory

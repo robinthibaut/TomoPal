@@ -4,9 +4,16 @@ from os.path import join as jp
 
 import numpy as np
 
-from tomopal.crtomopy.crtomo.crc import Crtomo, datread, mesh_geometry, import_res, mtophase
-from ..parent import inventory
+from tomopal.crtomopy.crtomo.crc import (
+    Crtomo,
+    datread,
+    import_res,
+    mesh_geometry,
+    mtophase,
+)
+
 from ...geoview.diavatly import model_map  # To plot results
+from ..parent import inventory
 
 # %% Directories
 
@@ -15,45 +22,48 @@ from ...geoview.diavatly import model_map  # To plot results
 # they will be automatically generated once you initialize a crtomo object.
 # Note: the function 'jp' simply joins the arguments to build a path.
 main_dir = inventory.hello()  # Current working directory of the project
-data_dir = jp(main_dir, 'data', 'demo')  # Data files directory
-mesh_dir = jp(main_dir, 'mesh', 'demo')  # Mesh files directory
-iso_dir = jp(main_dir, 'iso', 'demo')  # ISO file dir
-ref_dir = jp(main_dir, 'ref', 'demo')  # Reference model files dir
-start_dir = jp(main_dir, 'start', 'demo')  # Start model files dir
-results_dir = jp(main_dir, 'results', 'demo')  # Results files directory
+data_dir = jp(main_dir, "data", "demo")  # Data files directory
+mesh_dir = jp(main_dir, "mesh", "demo")  # Mesh files directory
+iso_dir = jp(main_dir, "iso", "demo")  # ISO file dir
+ref_dir = jp(main_dir, "ref", "demo")  # Reference model files dir
+start_dir = jp(main_dir, "start", "demo")  # Start model files dir
+results_dir = jp(main_dir, "results", "demo")  # Results files directory
 
 # %% Exe names
 
 # Input here the path to your exe files.
 
-mesh_exe_name = jp(main_dir, 'mesh.exe')
-crtomo_exe_name = jp(main_dir, 'crtomo.exe')
+mesh_exe_name = jp(main_dir, "mesh.exe")
+crtomo_exe_name = jp(main_dir, "crtomo.exe")
 
 # %%  Create crtomo object
 
 # Folders will be generated here if they don't exist already.
 
-myinv = Crtomo(working_dir=main_dir,
-               data_dir=data_dir,
-               mesh_dir=mesh_dir,
-               iso_dir=iso_dir,
-               ref_dir=ref_dir,
-               start_dir=start_dir,
-               crtomo_exe=crtomo_exe_name,
-               mesh_exe=mesh_exe_name)
+myinv = Crtomo(
+    working_dir=main_dir,
+    data_dir=data_dir,
+    mesh_dir=mesh_dir,
+    iso_dir=iso_dir,
+    ref_dir=ref_dir,
+    start_dir=start_dir,
+    crtomo_exe=crtomo_exe_name,
+    mesh_exe=mesh_exe_name,
+)
 
 # %%  Generating the mesh
 
 # Data file name A B M N in meters
 
-df = jp(data_dir, 'demo_elecs.dat')  # Path to electrode configuration file
+df = jp(data_dir, "demo_elecs.dat")  # Path to electrode configuration file
 dat = datread(df)  # Use built-in function to extract data (optional)
 
 # Electrode spacing in meters
 es = 5
 
 #  Electrodes elevation
-ef = jp(data_dir, 'demo_elevation.dat')  # Data elevation file name X Z in meters
+# Data elevation file name X Z in meters
+ef = jp(data_dir, "demo_elevation.dat")
 elev = datread(ef)  # Use built-in function to extract data (optional)
 
 # %% Build the mesh
@@ -73,8 +83,9 @@ myinv.meshmaker(abmn=dat[:, [0, 1, 2, 3]],
 
 # %% Read the mesh data (number of cells, blocks coordinates, x-y coordinates of the center of the blocks) from Mesh.dat
 
-mshf = jp(mesh_dir, 'Mesh.dat')  # Path to the generated 'Mesh.dat' file.
-ncol, nlin, nelem, blocks, centerxy = mesh_geometry(mshf)  # Extract mesh properties
+mshf = jp(mesh_dir, "Mesh.dat")  # Path to the generated 'Mesh.dat' file.
+ncol, nlin, nelem, blocks, centerxy = mesh_geometry(
+    mshf)  # Extract mesh properties
 
 # %% Build configuration file
 
@@ -82,16 +93,18 @@ ncol, nlin, nelem, blocks, centerxy = mesh_geometry(mshf)  # Extract mesh proper
 mesh_file = mshf
 
 # 1 elec.dat file
-elec_file = jp(mesh_dir, 'elec.dat')
+elec_file = jp(mesh_dir, "elec.dat")
 
 # 2 Data file
-data_file = jp(data_dir, 'demo_data.dat')
+data_file = jp(data_dir, "demo_data.dat")
 
 # 3 Results folder file
 
 # Specify the path where the results will be loaded
 
-frname = ''  # If you want to save the results in a sub-folder in the main results folder
+frname = (
+    ""  # If you want to save the results in a sub-folder in the main results folder
+)
 
 result_folder = jp(results_dir, frname)
 
@@ -160,7 +173,7 @@ starting_model = 0
 starting_model_file = None
 
 # %% 19 ISO file 1
-iso_file1 = jp(iso_dir, 'iso.dat')
+iso_file1 = jp(iso_dir, "iso.dat")
 
 # dm = datread(starting_model_file, start=1)[:, 0]
 # isom = ModelMaker(blocks=blocks, values=dm, values_log=1, bck=1)
@@ -170,35 +183,36 @@ iso_file1 = jp(iso_dir, 'iso.dat')
 #     [rw.write('{} 1'.format(str(i))+'\n') for i in isom.final_results]
 #     rw.close()
 
-
 # %% Generate configuration file
 
 # If erase = 1, every item in the result folder will be deleted. If you don't want that, pick 0 instead.
 
 # Use help(Crtomo.write_config) to see which parameters you can implement.
 
-myinv.write_config(erase=1,
-                   mesh_file=mesh_file,
-                   elec_file=elec_file,
-                   data_file=data_file,
-                   result_folder=result_folder,
-                   reference_model=reference_model,
-                   reference_model_file=reference_model_file,
-                   reference_weights_file=reference_weights_file,
-                   iso_file1=iso_file1,
-                   iterations=iterations,
-                   rms=rms,
-                   dc=dc,
-                   robust=robust,
-                   check_polarity=check_polarity,
-                   final_phase_improvement=final_phase_improvement,
-                   error_level=error_level,
-                   min_abs_error=min_abs_error,
-                   phase_error=phase_error,
-                   mgs=mgs,
-                   beta=beta,
-                   starting_model=starting_model,
-                   starting_model_file=starting_model_file)
+myinv.write_config(
+    erase=1,
+    mesh_file=mesh_file,
+    elec_file=elec_file,
+    data_file=data_file,
+    result_folder=result_folder,
+    reference_model=reference_model,
+    reference_model_file=reference_model_file,
+    reference_weights_file=reference_weights_file,
+    iso_file1=iso_file1,
+    iterations=iterations,
+    rms=rms,
+    dc=dc,
+    robust=robust,
+    check_polarity=check_polarity,
+    final_phase_improvement=final_phase_improvement,
+    error_level=error_level,
+    min_abs_error=min_abs_error,
+    phase_error=phase_error,
+    mgs=mgs,
+    beta=beta,
+    starting_model=starting_model,
+    starting_model_file=starting_model_file,
+)
 
 # Forward modeling example :
 
@@ -244,19 +258,22 @@ else:  # if you only have resistivity data to load
 # Remove outliers (arbitrary)
 cut = np.log10(4500)
 rest[rest > cut] = cut
-res_levels = 10 ** np.linspace(min(rest), cut, 10)  # Define a linear space for the color map
-rtp = 10 ** np.copy(rest)
+# Define a linear space for the color map
+res_levels = 10**np.linspace(min(rest), cut, 10)
+rtp = 10**np.copy(rest)
 
 # Use the model_map function to display the computed resistivity:
 # log=1 because we want a logarithmic scale.
 # cbpos is for the position of the color bar.
-model_map(polygons=blocks,
-          vals=rtp,
-          log=1,
-          cbpos=0.4,
-          levels=res_levels,
-          folder=result_folder,
-          figname='demo_res_levels')
+model_map(
+    polygons=blocks,
+    vals=rtp,
+    log=1,
+    cbpos=0.4,
+    levels=res_levels,
+    folder=result_folder,
+    figname="demo_res_levels",
+)
 
 # %% if IP
 if dc == 0:
@@ -266,16 +283,18 @@ if dc == 0:
     ipt = np.copy(np.abs(ip / m2p))
 
     # Arbitrarily cut outliers
-    hist = np.histogram(ipt, bins='auto')
+    hist = np.histogram(ipt, bins="auto")
     cut = 260
     ipt[ipt > cut] = cut
 
     # Define levels to be plotted
     ip_levels = [0, 10, 20, 30, 40, 50, 60, 70, 260]
 
-    model_map(polygons=blocks,
-              vals=ipt,
-              log=0,
-              levels=ip_levels,
-              folder=result_folder,
-              figname='demo_ip_level')
+    model_map(
+        polygons=blocks,
+        vals=ipt,
+        log=0,
+        levels=ip_levels,
+        folder=result_folder,
+        figname="demo_ip_level",
+    )

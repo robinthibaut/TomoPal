@@ -12,8 +12,9 @@ import vtk
 
 def read_file(file=None, header=0):
     """Reads space separated dat file"""
-    with open(file, 'r') as fr:
-        op = np.array([list(map(float, i.split())) for i in fr.readlines()[header:]])
+    with open(file, "r") as fr:
+        op = np.array(
+            [list(map(float, i.split())) for i in fr.readlines()[header:]])
     return op
 
 
@@ -24,19 +25,24 @@ def order_vertices(vertices):
     :return: Sorted vertices
     """
     # Compute center of vertices
-    center = \
-        tuple(map(operator.truediv, reduce(lambda x, y: map(operator.add, x, y), vertices), [len(vertices)] * 2))
+    center = tuple(
+        map(
+            operator.truediv,
+            reduce(lambda x, y: map(operator.add, x, y), vertices),
+            [len(vertices)] * 2,
+        ))
 
     # Sort vertices according to angle
-    so = \
-        sorted(vertices,
-               key=lambda coord: (math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))))
+    so = sorted(
+        vertices,
+        key=lambda coord: (math.degrees(
+            math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))),
+    )
 
     return np.array(so)
 
 
 class TomoVTK:
-
     def __init__(self, output_dir, name=None):
 
         self.output_dir = output_dir
@@ -56,7 +62,7 @@ class TomoVTK:
         """
 
         if values_names is None:
-            values_names = [f'val{i}' for i in range(values.shape[1])]
+            values_names = [f"val{i}" for i in range(values.shape[1])]
 
         # Initiate points and ugrid
         points = vtk.vtkPoints()
@@ -67,19 +73,24 @@ class TomoVTK:
 
         ncells = len(blocks) // 4
         # Insert cells in UGrid
-        [ugrid.InsertNextCell(vtk.VTK_QUAD, 4, list(range(e * 4, e * 4 + 4))) for e in range(ncells)]
+        [
+            ugrid.InsertNextCell(vtk.VTK_QUAD, 4, list(range(e * 4,
+                                                             e * 4 + 4)))
+            for e in range(ncells)
+        ]
         ugrid.SetPoints(points)  # Set points
 
         # Initiate array and give it a name
         for e, val in enumerate(values_names):
             resArray = vtk.vtkDoubleArray()
-            resArray.SetName(f'{val}')
+            resArray.SetName(f"{val}")
             [resArray.InsertNextValue(r) for r in values[:, e]]
-            ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
+            ugrid.GetCellData().AddArray(
+                resArray)  # Add array to unstructured grid
 
         # Save grid
 
-        vtu_file = os.path.join(self.output_dir, f'{self.name}.vtu')
+        vtu_file = os.path.join(self.output_dir, f"{self.name}.vtu")
 
         writer = vtk.vtkXMLUnstructuredGridWriter()
         writer.SetInputData(ugrid)
@@ -124,7 +135,7 @@ class TomoVTK:
         # Save Polydata to XML format. Use smooth_loop.GetOutput() to obtain filtered polydata
         writer = vtk.vtkXMLPolyDataWriter()
         writer.SetInputData(smooth_loop.GetOutput())
-        writer.SetFileName(os.path.join(self.output_dir, 'dem.vtp'))
+        writer.SetFileName(os.path.join(self.output_dir, "dem.vtp"))
         writer.Write()
 
         return 0
