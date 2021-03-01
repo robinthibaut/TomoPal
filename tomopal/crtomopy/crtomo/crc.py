@@ -7,7 +7,6 @@ import subprocess as sp
 import warnings
 from os import listdir
 from os.path import isfile
-from os.path import join
 from os.path import join as jp
 from shutil import copyfile
 
@@ -196,7 +195,7 @@ def import_res(result_folder, iteration=0, return_file=0):
     iteration = iteration - 1
 
     onlyfiles = [
-        f for f in listdir(result_folder) if isfile(join(result_folder, f))
+        f for f in listdir(result_folder) if isfile(jp(result_folder, f))
     ]  # Lists all the file in
     # requested folder
 
