@@ -57,8 +57,9 @@ def res2mod(file, processing_function=None):
         smf.write(str(int(f[0][0])) + "\n")
         [
             smf.write(
-                str(10**(sm[i])) + "\t" + "0" + "\t" + str(sm[i]) + "\t" +
-                "0" + "\n") for i in range(0, len(sm))
+                str(10 ** (sm[i])) + "\t" + "0" + "\t" + str(sm[i]) + "\t" + "0" + "\n"
+            )
+            for i in range(0, len(sm))
         ]
         smf.close()
 
@@ -68,7 +69,7 @@ def res2mod(file, processing_function=None):
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
-        yield l[i:i + n]
+        yield l[i : i + n]
 
 
 def flag(n):
@@ -84,11 +85,7 @@ def flag(n):
         return "T"
 
 
-def write_data(nelem=0,
-               electrode_spacing=1,
-               data=None,
-               data_op_file=None,
-               m2p=1):
+def write_data(nelem=0, electrode_spacing=1, data=None, data_op_file=None, m2p=1):
     """
 
     Given the arguments below, writes crtomo-readable file.
@@ -106,14 +103,15 @@ def write_data(nelem=0,
     es = electrode_spacing
 
     crdata[:, [0, 1, 2, 3]] = (
-        crdata[:, [0, 1, 2, 3]] +
-        es) / es  # Convert the electrode x-position to electrodes number.
+        crdata[:, [0, 1, 2, 3]] + es
+    ) / es  # Convert the electrode x-position to electrodes number.
 
     if m2p != 1:
         crdata[:, -1] *= m2p
 
-    crdataf = (str(nelem) + "\n" +
-               "\n".join([" ".join(list(map(str, l))) for l in crdata]))
+    crdataf = (
+        str(nelem) + "\n" + "\n".join([" ".join(list(map(str, l))) for l in crdata])
+    )
 
     with open(data_op_file, "w") as ndf:
         ndf.write(crdataf)
@@ -199,9 +197,7 @@ def import_res(result_folder, iteration=0, return_file=0):
     ]  # Lists all the file in
     # requested folder
 
-    rho_files = [
-        jp(result_folder, x) for x in onlyfiles if "rho" in x and ".txt" in x
-    ]
+    rho_files = [jp(result_folder, x) for x in onlyfiles if "rho" in x and ".txt" in x]
     pha_files = [jp(result_folder, x) for x in onlyfiles if ".pha" in x]
     volt_files = [
         jp(result_folder, x) for x in onlyfiles if "volt" in x and ".dat" in x
@@ -232,8 +228,7 @@ def import_res(result_folder, iteration=0, return_file=0):
 
         # Load volt
         its_volt = [
-            int(
-                os.path.basename(v).split(".")[0].strip("volt0").strip("volt"))
+            int(os.path.basename(v).split(".")[0].strip("volt0").strip("volt"))
             for v in volt_files
         ]
 
@@ -248,9 +243,8 @@ def import_res(result_folder, iteration=0, return_file=0):
         #  Load phase
         if len(pha_files) > 0:
             its_pha = [
-                int(
-                    os.path.basename(r).split(".")[0].strip("rho0").strip(
-                        "rho")) for r in pha_files
+                int(os.path.basename(r).split(".")[0].strip("rho0").strip("rho"))
+                for r in pha_files
             ]
             if iteration == -1:
                 iterip = its_pha.index(nits)
@@ -273,8 +267,7 @@ def import_res(result_folder, iteration=0, return_file=0):
         warnings.warn("no results found")
 
     if return_file:
-        return [r_array, p_array, v_array,
-                s_array], [rlast, iplast, vlast, sens]
+        return [r_array, p_array, v_array, s_array], [rlast, iplast, vlast, sens]
 
     else:
         return [r_array, p_array, v_array, s_array]
@@ -322,21 +315,22 @@ def mesh_geometry(mesh_file):
     # msh = datread(mesh_file) # Deprecated
 
     with open(mesh_file, "r") as fr:
-        msh = np.array([
-            list(map(float,
-                     l.replace("T", "").split())) for l in fr.readlines()
-        ])
+        msh = np.array(
+            [list(map(float, l.replace("T", "").split())) for l in fr.readlines()]
+        )
 
     nnodes = int(msh[0][0])
     nelem = int(msh[1][1])
     ncol = int(msh[0][3])
     nlin = int(msh[0][4])
 
-    nodes = np.array(msh[4:(nnodes + 4)])
-    xn = np.array(list(chunks([nodes[i][1] for i in range(nnodes)],
-                              ncol + 1))).flatten()
-    yn = np.array(list(chunks([nodes[i][2] for i in range(nnodes)],
-                              nlin + 1))).flatten()
+    nodes = np.array(msh[4 : (nnodes + 4)])
+    xn = np.array(
+        list(chunks([nodes[i][1] for i in range(nnodes)], ncol + 1))
+    ).flatten()
+    yn = np.array(
+        list(chunks([nodes[i][2] for i in range(nnodes)], nlin + 1))
+    ).flatten()
 
     xy = np.array([[xn[i], yn[i]] for i in range(len(xn))])
 
@@ -350,17 +344,20 @@ def mesh_geometry(mesh_file):
 
     for i in range(s[0] - 1):
         for j in range(s[1] - 1):
-            blocks.append([
-                [layers[i, j, 0], layers[i, j, 1]],
-                [layers[i + 1, j, 0], layers[i + 1, j, 1]],
-                [layers[i + 1, j + 1, 0], layers[i + 1, j + 1, 1]],
-                [layers[i + 1, j + 1, 0], layers[i, j + 1, 1]],
-            ])
+            blocks.append(
+                [
+                    [layers[i, j, 0], layers[i, j, 1]],
+                    [layers[i + 1, j, 0], layers[i + 1, j, 1]],
+                    [layers[i + 1, j + 1, 0], layers[i + 1, j + 1, 1]],
+                    [layers[i + 1, j + 1, 0], layers[i, j + 1, 1]],
+                ]
+            )
 
     blocks = np.array(blocks)
 
-    centerxy = np.array([[np.mean(blocks[i, :, 0]),
-                          np.mean(blocks[i, :, 1])] for i in range(nelem)])
+    centerxy = np.array(
+        [[np.mean(blocks[i, :, 0]), np.mean(blocks[i, :, 1])] for i in range(nelem)]
+    )
 
     return ncol, nlin, nelem, blocks, centerxy, nodes
 
@@ -611,11 +608,7 @@ class Crtomo:
         l5 = [i for i, x in enumerate(nc2) if x == 5]
         l5.pop(0)  # First element = header, not necessary
         for j in range(len(l5)):  # Adding columns as required
-            msh[l5[j]] += [
-                "T", "T", "T", "T",
-                int(10 + j), "T",
-                int(2 + j), "T"
-            ]
+            msh[l5[j]] += ["T", "T", "T", "T", int(10 + j), "T", int(2 + j), "T"]
 
         adj = [msh[l5[i]][1:5] for i in range(len(l5))]  # Preparing 'adj' file
         adj = np.array([list(map(int, a)) for a in adj])
@@ -750,7 +743,7 @@ class Crtomo:
             os.makedirs(result_folder)  # Creates it
         else:
             if (
-                    erase
+                erase
             ):  # If it exists and erase option enabled, empties its content first!
                 deldir(result_folder)
             else:
@@ -769,8 +762,9 @@ class Crtomo:
         data_file = crtomo_file_shortener(self.crtomo_exe, data_file)
 
         self.rwf = reference_weights_file  # Reference model weights file
-        reference_weights_file = crtomo_file_shortener(self.crtomo_exe,
-                                                       reference_weights_file)
+        reference_weights_file = crtomo_file_shortener(
+            self.crtomo_exe, reference_weights_file
+        )
 
         self.iso_f1 = iso_file1  # ISO file 1
         iso_file1 = crtomo_file_shortener(self.crtomo_exe, iso_file1)
@@ -781,15 +775,17 @@ class Crtomo:
         iso_file2 = crtomo_file_shortener(self.crtomo_exe, iso_file2)
 
         self.smf = starting_model_file  # Starting model file
-        starting_model_file = crtomo_file_shortener(self.crtomo_exe,
-                                                    starting_model_file)
+        starting_model_file = crtomo_file_shortener(
+            self.crtomo_exe, starting_model_file
+        )
 
         self.f1 = fdi1  # F1
         fdi1 = crtomo_file_shortener(self.crtomo_exe, fdi1)
 
         self.rmf = reference_model_file  # F2
-        reference_model_file = crtomo_file_shortener(self.crtomo_exe,
-                                                     reference_model_file)
+        reference_model_file = crtomo_file_shortener(
+            self.crtomo_exe, reference_model_file
+        )
 
         self.f3 = fdi3  # F3
         fdi3 = crtomo_file_shortener(self.crtomo_exe, fdi3)
@@ -886,8 +882,7 @@ class Crtomo:
             flag(next_dset),
         )
 
-        with open(jp(os.path.dirname(self.crtomo_exe), "crtritime.cfg"),
-                  "w") as cf:
+        with open(jp(os.path.dirname(self.crtomo_exe), "crtritime.cfg"), "w") as cf:
             cf.write(template)
             cf.close()
 
@@ -907,8 +902,10 @@ class Crtomo:
                 ncol, nlin, nelem, blocks, centerxy = mesh_geometry(self.mf)
                 isod = [[1, 1 * ratio] for i in range(nelem)]
                 isodat = (
-                    str(nelem) + "\n" +
-                    "\n".join([" ".join(list(map(str, l))) for l in isod]))
+                    str(nelem)
+                    + "\n"
+                    + "\n".join([" ".join(list(map(str, l))) for l in isod])
+                )
                 with open(self.iso_f1, "w") as md:
                     md.write(isodat)
                     md.close()

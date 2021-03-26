@@ -12,9 +12,7 @@ import pandas as pd
 def read_res(file):
     """Reads ABEM type output text files. Lowers the columns and removes special characters."""
     data = pd.read_csv(file, delimiter="\t")
-    data.columns = [
-        re.sub("[^A-Za-z0-9]+", "", col.lower()) for col in data.columns
-    ]
+    data.columns = [re.sub("[^A-Za-z0-9]+", "", col.lower()) for col in data.columns]
 
     return data
 
@@ -93,29 +91,27 @@ class Reciprocal:
 
         # To use a dict as a key you need to turn it into something that may be hashed first. If the dict you wish to
         # use as key consists of only immutable values, you can create a hashable representation of it with frozenset
-        conc["id"] = conc.apply(lambda row: frozenset(
-            Counter(row[["ax", "bx", "mx", "nx"]]).keys()),
-                                axis=1)
+        conc["id"] = conc.apply(
+            lambda row: frozenset(Counter(row[["ax", "bx", "mx", "nx"]]).keys()), axis=1
+        )  # noqa
 
         # Group by same identifiers = same electrode pairs
-        df1 = conc.groupby("id")["rohm"].apply(
-            np.array).reset_index(name="rhos")
+        df1 = conc.groupby("id")["rohm"].apply(np.array).reset_index(name="rhos")
 
         # Extract list containing res values [N, R]
         rhos = [d for d in df1.rhos.values if len(d) == 2]
         # Flatten and reshape
-        resNR = np.array([item for sublist in rhos
-                          for item in sublist]).reshape((-1, 2))
+        resNR = np.array([item for sublist in rhos for item in sublist]).reshape(
+            (-1, 2)
+        )
 
         # Extract repeatability error as well:
-        df2 = conc.groupby("id")["var"].apply(
-            np.array).reset_index(name="vars")
+        df2 = conc.groupby("id")["var"].apply(np.array).reset_index(name="vars")
 
         # Extract list containing var values [N, R]
         var = [d for d in df2.vars.values if len(d) == 2]
         # Flatten and reshape
-        varNR = np.array([item for sublist in var
-                          for item in sublist]).reshape((-1, 2))
+        varNR = np.array([item for sublist in var for item in sublist]).reshape((-1, 2))
 
         return resNR, varNR
 

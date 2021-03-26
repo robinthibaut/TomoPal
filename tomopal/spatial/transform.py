@@ -13,8 +13,7 @@ from scipy.interpolate import interp1d
 def read_file(file=None, header=0):
     """Reads space separated dat file"""
     with open(file, "r") as fr:
-        op = np.array(
-            [list(map(float, i.split())) for i in fr.readlines()[header:]])
+        op = np.array([list(map(float, i.split())) for i in fr.readlines()[header:]])
     return op
 
 
@@ -30,13 +29,15 @@ def order_vertices(vertices):
             operator.truediv,
             reduce(lambda x, y: map(operator.add, x, y), vertices),
             [len(vertices)] * 2,
-        ))
+        )
+    )
 
     # Sort vertices according to angle
     so = sorted(
         vertices,
-        key=lambda coord: (math.degrees(
-            math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))),
+        key=lambda coord: (
+            math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))
+        ),
     )
 
     return np.array(so)
@@ -144,14 +145,16 @@ class Transformation:
 
         # Set the maximum elevation at 0
         blocks3d[:, 2] -= np.min(
-            (np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].max())))
+            (np.abs(blocks3d[:, 2].min()), np.abs(blocks3d[:, 2].max()))
+        )
 
         # %% Coordinates conversion
         geod = Geodesic.WGS84  # define the WGS84 ellipsoid
 
         # Create an 'InverseLine' bounded by the profile endpoints.
-        profile = geod.InverseLine(self.bounds[0, 0], self.bounds[0, 1],
-                                   self.bounds[1, 0], self.bounds[1, 1])
+        profile = geod.InverseLine(
+            self.bounds[0, 0], self.bounds[0, 1], self.bounds[1, 0], self.bounds[1, 1]
+        )
 
         def lat_lon(distance):
             """
@@ -160,8 +163,7 @@ class Transformation:
             :return: latitude WGS84 in decimal degrees, longitude WGS84 in decimal degrees
             """
 
-            g = profile.Position(distance,
-                                 Geodesic.STANDARD | Geodesic.LONG_UNROLL)
+            g = profile.Position(distance, Geodesic.STANDARD | Geodesic.LONG_UNROLL)
 
             return g["lat2"], g["lon2"]
 
@@ -179,8 +181,7 @@ class Transformation:
                 blocks_wgs[i, 2] = altitude
         else:
             for i in range(len(blocks_wgs)):
-                altitude = elevation(blocks_wgs[i, 0]) - np.abs(blocks_wgs[i,
-                                                                           2])
+                altitude = elevation(blocks_wgs[i, 0]) - np.abs(blocks_wgs[i, 2])
                 lat, lon = lat_lon(blocks_wgs[i, 0])
                 blocks_wgs[i, 0] = lat
                 blocks_wgs[i, 1] = lon
@@ -200,8 +201,7 @@ class Transformation:
             line = geod.InverseLine(lat_origin, long_origin, lat_p, lon_p)
             azi = line.azi1
             dis = line.s13
-            return dis * math.sin(math.radians(azi)), dis * math.cos(
-                math.radians(azi))
+            return dis * math.sin(math.radians(azi)), dis * math.cos(math.radians(azi))
 
         blocks_local = np.copy(blocks_wgs)
         # Update coordinates
@@ -239,10 +239,9 @@ class Transformation:
 
             def elevation(lat_, lon_):
                 """Inverse Square Distance"""
-                d = np.sqrt((lon_ - points[:, 1])**2 +
-                            (lat_ - points[:, 0])**2)
+                d = np.sqrt((lon_ - points[:, 1]) ** 2 + (lat_ - points[:, 0]) ** 2)
                 if d.min() > 0:
-                    v = np.sum(values * (1 / d**2) / np.sum(1 / d**2))
+                    v = np.sum(values * (1 / d ** 2) / np.sum(1 / d ** 2))
                     return v
                 else:
                     return values[d.argmin()]
@@ -257,8 +256,9 @@ class Transformation:
         # Define meshgrid whose vertices will be used to triangulate the area
         xv, yv = np.meshgrid(lats, longs, sparse=False, indexing="xy")
         cs = np.stack((xv, yv), axis=2).reshape((-1, 2))  # Stack coordinates
-        dem_raw = np.array([[c[0], c[1], elevation(c[0], c[1])]
-                            for c in cs])  # Extract elevation
+        dem_raw = np.array(
+            [[c[0], c[1], elevation(c[0], c[1])] for c in cs]
+        )  # Extract elevation
 
         lat_origin, long_origin = self.origin
 

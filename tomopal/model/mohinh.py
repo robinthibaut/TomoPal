@@ -10,8 +10,7 @@ from matplotlib.ticker import LogFormatter
 from matplotlib.widgets import PolygonSelector, TextBox
 
 
-def find_norm(
-        l):  # Convert values to linear space to facilitate visualization!
+def find_norm(l):  # Convert values to linear space to facilitate visualization!
     uv = list(dict.fromkeys(l))
     uv.sort()
 
@@ -30,13 +29,13 @@ def find_norm(
 
 class ModelMaker(object):
     def __init__(
-            self,
-            model_name=None,
-            centerxy=np.array([]),
-            blocks=np.array([]),
-            values=np.array([]),
-            values_log=0,
-            bck=1,
+        self,
+        model_name=None,
+        centerxy=np.array([]),
+        blocks=np.array([]),
+        values=np.array([]),
+        values_log=0,
+        bck=1,
     ):
         """
         :param model_name: path to the file to be created containing the output
@@ -47,8 +46,7 @@ class ModelMaker(object):
         :param bck: background value
         """
 
-        if centerxy.any(
-        ):  # If block center coordinates are provided, plot them.
+        if centerxy.any():  # If block center coordinates are provided, plot them.
             xs = centerxy[:, 0]
             ys = centerxy[:, 1]
             fig, ax = plt.subplots()
@@ -56,8 +54,9 @@ class ModelMaker(object):
         else:  # Else, if only blocks are provided, the centers are computed based on the mean of the coordinates of
             # their corners
             try:
-                centerxy = np.array([np.mean(b, axis=0)
-                                     for b in blocks])  # Mean computed
+                centerxy = np.array(
+                    [np.mean(b, axis=0) for b in blocks]
+                )  # Mean computed
                 xs = centerxy[:, 0]
                 ys = centerxy[:, 1]
                 fig, ax = plt.subplots()
@@ -148,12 +147,13 @@ class ModelMaker(object):
             cmap2 = cm.get_cmap("coolwarm")
             if values_log:
                 # Making a nice linear space
-                itv = 10**np.linspace(np.log10(min(values)),
-                                      np.log10(max(values)), 12)
+                itv = 10 ** np.linspace(
+                    np.log10(min(values)), np.log10(max(values)), 12
+                )
                 # out ouf log values to represent some ticks on the colorbar
                 norm2 = colors.LogNorm(
-                    vmin=min(values),
-                    vmax=max(values))  # Log norm for color bar
+                    vmin=min(values), vmax=max(values)
+                )  # Log norm for color bar
                 # Necessary arg to produce the color scale
                 formatter = LogFormatter(10, labelOnlyBase=False)
             else:
@@ -181,22 +181,20 @@ class ModelMaker(object):
             cb1.set_ticklabels(ticks2)  # Setting the proper labels
 
         if (
-                self.blocks.any()
+            self.blocks.any()
         ):  # If blocks are provided. I should change this as the direction this code is going is
             # to provide blocks by default
 
             xs = self.blocks[:, :, 0]  # x-coordinates blocks corners
             ys = self.blocks[:, :, 1]  # y-coordinates blocks corners
 
-            patches = [
-            ]  # Coloring the blocks, in gray or with different colors
+            patches = []  # Coloring the blocks, in gray or with different colors
             for b in blocks:
                 polygon = Polygon(b, closed=True)
                 patches.append(polygon)
-            p = PatchCollection(patches,
-                                alpha=alpha,
-                                facecolors=facecolors,
-                                edgecolors="black")
+            p = PatchCollection(
+                patches, alpha=alpha, facecolors=facecolors, edgecolors="black"
+            )
             p.set_zorder(0)
             self.ax.add_collection(p)
 
@@ -229,9 +227,7 @@ class ModelMaker(object):
         """
         try:
             # In case the user inputs a
-            tt = text.translate(
-                {ord(c): "."
-                 for c in "!@#$%^&*()[]{};:,/<>?\\|`~=_+"})
+            tt = text.translate({ord(c): "." for c in "!@#$%^&*()[]{};:,/<>?\\|`~=_+"})
             # float number with a character different than '.', this will convert it.
             # When pressing enter in the text box, ads the value to 'vals'
             z = float(tt)
@@ -242,8 +238,9 @@ class ModelMaker(object):
         # When pressing enter in the text box, the value will be added to the 'vals' list
         self.vals.append(z)
         # self.vinput.set_val(z)
-        self.ax.set_title("Now setting value: {}".format(
-            self.vals[-1]))  # Updates the title
+        self.ax.set_title(
+            "Now setting value: {}".format(self.vals[-1])
+        )  # Updates the title
 
     def onselect(self, verts):
         """
@@ -253,8 +250,7 @@ class ModelMaker(object):
         :return:
         """
 
-        if len(self.vals
-               ) == 0:  # If the user forgets to press enter to initiate value
+        if len(self.vals) == 0:  # If the user forgets to press enter to initiate value
             self.vals.append(0)
             print("Press enter in the text box")
 
@@ -285,7 +281,7 @@ class ModelMaker(object):
         cols = colors.ListedColormap([self.cmap(v) for v in ccb])
 
         if (
-                len(vals_cb) > 1
+            len(vals_cb) > 1
         ):  # Creating a colormap fn to automatically rescale the colors of selected zones
 
             try:
@@ -309,8 +305,9 @@ class ModelMaker(object):
         else:
             pass
 
-        if (not self.blocks.any()
-            ):  # If no blocks, simply coloring the points accordingly
+        if (
+            not self.blocks.any()
+        ):  # If no blocks, simply coloring the points accordingly
             for i in range(len(self.index)):
                 self.fc[self.index[i][1]] = self.cmap(lsps[i])
             self.collection.set_facecolors(self.fc)  # updates points color

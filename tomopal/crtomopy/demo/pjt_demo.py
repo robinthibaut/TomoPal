@@ -75,17 +75,14 @@ elev = datread(ef)  # Use built-in function to extract data (optional)
 # the electrode spacing (required)
 # the elevation data (optional)
 
-myinv.meshmaker(abmn=dat[:, [0, 1, 2, 3]],
-                electrode_spacing=es,
-                elevation_data=elev)
+myinv.meshmaker(abmn=dat[:, [0, 1, 2, 3]], electrode_spacing=es, elevation_data=elev)
 # If you already have generated a mesh, comment the line above and instead
 # load the previously generated Mesh.dat file as described below.
 
 # %% Read the mesh data (number of cells, blocks coordinates, x-y coordinates of the center of the blocks) from Mesh.dat
 
 mshf = jp(mesh_dir, "Mesh.dat")  # Path to the generated 'Mesh.dat' file.
-ncol, nlin, nelem, blocks, centerxy = mesh_geometry(
-    mshf)  # Extract mesh properties
+ncol, nlin, nelem, blocks, centerxy = mesh_geometry(mshf)  # Extract mesh properties
 
 # %% Build configuration file
 
@@ -259,8 +256,8 @@ else:  # if you only have resistivity data to load
 cut = np.log10(4500)
 rest[rest > cut] = cut
 # Define a linear space for the color map
-res_levels = 10**np.linspace(min(rest), cut, 10)
-rtp = 10**np.copy(rest)
+res_levels = 10 ** np.linspace(min(rest), cut, 10)
+rtp = 10 ** np.copy(rest)
 
 # Use the model_map function to display the computed resistivity:
 # log=1 because we want a logarithmic scale.

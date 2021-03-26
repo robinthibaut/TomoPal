@@ -13,8 +13,7 @@ import vtk
 def read_file(file=None, header=0):
     """Reads space separated dat file"""
     with open(file, "r") as fr:
-        op = np.array(
-            [list(map(float, i.split())) for i in fr.readlines()[header:]])
+        op = np.array([list(map(float, i.split())) for i in fr.readlines()[header:]])
     return op
 
 
@@ -30,13 +29,15 @@ def order_vertices(vertices):
             operator.truediv,
             reduce(lambda x, y: map(operator.add, x, y), vertices),
             [len(vertices)] * 2,
-        ))
+        )
+    )
 
     # Sort vertices according to angle
     so = sorted(
         vertices,
-        key=lambda coord: (math.degrees(
-            math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))),
+        key=lambda coord: (
+            math.degrees(math.atan2(*tuple(map(operator.sub, coord, center))[::-1]))
+        ),
     )
 
     return np.array(so)
@@ -74,8 +75,7 @@ class TomoVTK:
         ncells = len(blocks) // 4
         # Insert cells in UGrid
         [
-            ugrid.InsertNextCell(vtk.VTK_QUAD, 4, list(range(e * 4,
-                                                             e * 4 + 4)))
+            ugrid.InsertNextCell(vtk.VTK_QUAD, 4, list(range(e * 4, e * 4 + 4)))
             for e in range(ncells)
         ]
         ugrid.SetPoints(points)  # Set points
@@ -85,8 +85,7 @@ class TomoVTK:
             resArray = vtk.vtkDoubleArray()
             resArray.SetName(f"{val}")
             [resArray.InsertNextValue(r) for r in values[:, e]]
-            ugrid.GetCellData().AddArray(
-                resArray)  # Add array to unstructured grid
+            ugrid.GetCellData().AddArray(resArray)  # Add array to unstructured grid
 
         # Save grid
 

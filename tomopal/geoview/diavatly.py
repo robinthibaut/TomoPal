@@ -61,8 +61,9 @@ def refine_axis(widths, r_pt, ext, cnd, d_dim, a_lim):
         # Where do we have the default cell size on the
         where_left = where_default[np.where(where_default < wherex[0])]
         # left
-        where_right = where_default[np.where(
-            (where_default >= wherex[0] + len(nwxs)))]  # And on the right
+        where_right = where_default[
+            np.where((where_default >= wherex[0] + len(nwxs)))
+        ]  # And on the right
         lwl = len(where_left)
         lwr = len(where_right)
 
@@ -180,12 +181,17 @@ def read_xyz(file):
 
     msh = op
 
-    blocks = np.array([[
-        [msh[i, 1], msh[i, 2]],
-        [msh[i, 3], msh[i, 4]],
-        [msh[i, 5], msh[i, 6]],
-        [msh[i, 7], msh[i, 8]],
-    ] for i in range(len(msh))])
+    blocks = np.array(
+        [
+            [
+                [msh[i, 1], msh[i, 2]],
+                [msh[i, 3], msh[i, 4]],
+                [msh[i, 5], msh[i, 6]],
+                [msh[i, 7], msh[i, 8]],
+            ]
+            for i in range(len(msh))
+        ]
+    )
 
     try:  # Sometimes res2dinv exports a 10th and 11th column with x-y center of the blocks
         xs = msh[:, 9]
@@ -254,13 +260,13 @@ def model_map(
             zb = np.array([np.log10(r) for r in res])
             if not levels.any():
                 # Creates a linear space between the two extremes values
-                itv = 10**np.linspace(min(zb), max(zb), 7)
+                itv = 10 ** np.linspace(min(zb), max(zb), 7)
                 # and raise it to the power of 10. I should allow the user to choose the levels.
             else:
                 if len(levels) >= 1:
                     itv = levels[0]
                 else:
-                    itv = 10**np.linspace(min(zb), max(zb), 7)
+                    itv = 10 ** np.linspace(min(zb), max(zb), 7)
 
         else:
             zb = np.copy(res)
@@ -280,8 +286,7 @@ def model_map(
                 # Necessary to produce the color scale
                 formatter = LogFormatter(10, labelOnlyBase=False)
             else:
-                norm = colors.Normalize(vmin=min(zb),
-                                        vmax=max(zb))  # Classic norm
+                norm = colors.Normalize(vmin=min(zb), vmax=max(zb))  # Classic norm
                 formatter = None
 
             # Each block receives a color based on their value.
@@ -330,8 +335,9 @@ def model_map(
                 # Where colors are defined for each cell
                 fcols = [cmap(v) for v in nl]
                 # scale01 = np.array(sorted(set(nl)))
-                cols = colors.ListedColormap([cmap(v) for v in scale01
-                                              ])  # Changed here !
+                cols = colors.ListedColormap(
+                    [cmap(v) for v in scale01]
+                )  # Changed here !
                 cmap = cols
 
                 # Colorbar properties:
@@ -369,8 +375,9 @@ def model_map(
                 # Where colors are defined for each cell
                 fcols = [cmap(v) for v in nl]
                 # scale01 = np.array(sorted(set(nl)))
-                cols = colors.ListedColormap([cmap(v) for v in scale01
-                                              ])  # Changed here !
+                cols = colors.ListedColormap(
+                    [cmap(v) for v in scale01]
+                )  # Changed here !
                 cmap = cols
 
                 # Colorbar properties:
@@ -394,11 +401,9 @@ def model_map(
     if not res.any():
         fcols = "white"
         edgecolors = "gray"
-    p = PatchCollection(patches,
-                        alpha=1,
-                        facecolors=fcols,
-                        edgecolors=edgecolors,
-                        linewidths=0.2)
+    p = PatchCollection(
+        patches, alpha=1, facecolors=fcols, edgecolors=edgecolors, linewidths=0.2
+    )
     ax.add_collection(p)
 
     # Add padding
@@ -468,10 +473,8 @@ def model_map(
             ax.add_collection(pc)
 
         if contour:
-            xsd = np.array(
-                [np.mean(polygons[i, :, 0]) for i in range(len(polygons))])
-            ysd = np.array(
-                [np.mean(polygons[i, :, 1]) for i in range(len(polygons))])
+            xsd = np.array([np.mean(polygons[i, :, 0]) for i in range(len(polygons))])
+            ysd = np.array([np.mean(polygons[i, :, 1]) for i in range(len(polygons))])
             paths = get_contour_line(xsd, ysd, zb, contour)
             path_patches = []
             # path_patches.append(mptpatches.PathPatch(p, facecolor='none', lw=2))
@@ -481,9 +484,9 @@ def model_map(
             ax.add_collection(pc)
 
     if figname:
-        plt.savefig("{}.{}".format(jp(folder, figname), extension),
-                    dpi=dpi,
-                    bbox_inches="tight")
+        plt.savefig(
+            "{}.{}".format(jp(folder, figname), extension), dpi=dpi, bbox_inches="tight"
+        )
 
 
 def DOI(d1, d2, r1, r2):
@@ -505,8 +508,7 @@ def DOI(d1, d2, r1, r2):
     xsd = [np.mean(blocksD1[i, :, 0]) for i in range(len(blocksD1))]
     ysd = [np.mean(blocksD1[i, :, 1]) for i in range(len(blocksD1))]
 
-    doi = np.abs(
-        (np.log10(resD2) - np.log10(resD1)) / (np.log10(r1) - np.log10(r2)))
+    doi = np.abs((np.log10(resD2) - np.log10(resD1)) / (np.log10(r1) - np.log10(r2)))
     doi = (doi - doi.min()) / (doi.max() - doi.min())
 
     return blocksD1, doi
