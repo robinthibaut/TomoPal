@@ -6,4 +6,4 @@ scipy~=1.6.2
 pandas~=1.2.4
 matplotlib~=3.4.1
 loguru~=0.5.3
-setuptools~=54.2.0
+setuptools~=56.0.0
