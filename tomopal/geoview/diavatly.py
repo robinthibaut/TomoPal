@@ -69,7 +69,7 @@ def refine_axis(widths, r_pt, ext, cnd, d_dim, a_lim):
 
         if lwl > lwr:
             rl = (
-                lwl / lwr
+                    lwl / lwr
             )  # Weights how many cells are on either sides of the refinement zone
             # Splitting the extra widths on the left and right of the cells
             dal = difx / ((lwl + lwr) / lwl)
@@ -77,7 +77,7 @@ def refine_axis(widths, r_pt, ext, cnd, d_dim, a_lim):
             dar = difx - dal
         elif lwr > lwl:
             rl = (
-                lwr / lwl
+                    lwr / lwl
             )  # Weights how many cells are on either sides of the refinement zone
             # Splitting the extra widths on the left and right of the cells
             dar = difx / ((lwl + lwr) / lwr)
@@ -177,7 +177,7 @@ def read_xyz(file):
         12 Resistivity value for the block
     """
     with open(file, "r") as fr:
-        op = np.array([list(map(float, l.split())) for l in fr.readlines()])
+        op = np.array([list(map(float, _.split())) for _ in fr.readlines()])
 
     msh = op
 
@@ -207,25 +207,25 @@ def read_xyz(file):
 
 
 def model_map(
-    polygons=None,
-    vals=np.array([]),
-    levels=0,
-    log=1,
-    aspect=1,
-    cbpos=0.1,
-    ndec=1,
-    cmap_name="coolwarm",
-    stepx=None,
-    stepy=None,
-    folder=None,
-    figname=None,
-    contour=None,
-    contours_path=None,
-    binned=False,
-    fontsize=5,
-    labelsize=5,
-    dpi=300,
-    extension="png",
+        polygons=None,
+        vals=np.array([]),
+        levels=0,
+        log=1,
+        aspect=1,
+        cbpos=0.1,
+        ndec=1,
+        cmap_name="coolwarm",
+        stepx=None,
+        stepy=None,
+        folder=None,
+        figname=None,
+        contour=None,
+        contours_path=None,
+        binned=False,
+        fontsize=5,
+        labelsize=5,
+        dpi=300,
+        extension="png",
 ):
     """
 
@@ -316,9 +316,9 @@ def model_map(
                 # the selected level
                 # Finds the difference between each set to discretize the model values in bins
                 wherebouts = [
-                    np.setdiff1d(whereru[i], whereru[i - 1])
-                    for i in range(len(whereru) - 1, -1, -1)
-                ][::-1]
+                                 np.setdiff1d(whereru[i], whereru[i - 1])
+                                 for i in range(len(whereru) - 1, -1, -1)
+                             ][::-1]
                 # Replace
                 scale_c = np.copy(scale01)
                 for i, v in enumerate(itv[1:-1]):
@@ -359,9 +359,9 @@ def model_map(
                 # selected level
                 # Finds the difference between each set to discretize the model values in bins
                 wherebouts = [
-                    np.setdiff1d(whereru[i], whereru[i - 1])
-                    for i in range(len(whereru) - 1, -1, -1)
-                ][::-1]
+                                 np.setdiff1d(whereru[i], whereru[i - 1])
+                                 for i in range(len(whereru) - 1, -1, -1)
+                             ][::-1]
                 # Replace
                 scale_c = np.copy(scale01)
                 for i, v in enumerate(itv[:-1]):
@@ -489,7 +489,7 @@ def model_map(
         )
 
 
-def DOI(d1, d2, r1, r2):
+def DOI(d1: str, d2: str, r1: float, r2: float):
     """
     Returns the DOI array given two files containing the res2dinv exported data.
     Resistivity units assumed to be ohm*m.

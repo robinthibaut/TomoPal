@@ -28,7 +28,7 @@ def display(nor_rec):
     plt.show()
 
 
-def hist(nor_rec, bins, quantile=None):
+def hist(nor_rec: np.array, bins: int, quantile: float = None):
     """Plot histogram
     :param nor_rec: np.array: Array (n, 2) containing n normal and reciprocal measurements
     :param quantile: float: Quantile threshold
