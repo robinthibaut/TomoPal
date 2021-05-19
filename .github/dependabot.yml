@@ -1,0 +1,21 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: setuptools
+    versions:
+    - 56.0.0
+  - dependency-name: scipy
+    versions:
+    - 1.6.2
+  - dependency-name: pandas
+    versions:
+    - 1.2.3
+  - dependency-name: rasterio
+    versions:
+    - 1.2.1
