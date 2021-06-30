@@ -3,3 +3,5 @@
 # TomoPal
 
 A package to take care of your ERT needs.
+
+Documentation: https://tomopal.readthedocs.io/en/latest/
