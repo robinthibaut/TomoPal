@@ -8,7 +8,6 @@ TomoPal
 
 .. currentmodule:: TomoPal
 
-This package implements the Bayesian Evidential Learning framework.
 
 Installation
 ------------
