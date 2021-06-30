@@ -15,6 +15,7 @@ from scipy.interpolate import interp1d as f1d
 
 from tomopal.crtomopy.parent import inventory
 
+
 #  Functions
 
 
@@ -69,7 +70,7 @@ def res2mod(file, processing_function=None):
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
-        yield l[i : i + n]
+        yield l[i: i + n]
 
 
 def flag(n):
@@ -103,14 +104,14 @@ def write_data(nelem=0, electrode_spacing=1, data=None, data_op_file=None, m2p=1
     es = electrode_spacing
 
     crdata[:, [0, 1, 2, 3]] = (
-        crdata[:, [0, 1, 2, 3]] + es
-    ) / es  # Convert the electrode x-position to electrodes number.
+                                      crdata[:, [0, 1, 2, 3]] + es
+                              ) / es  # Convert the electrode x-position to electrodes number.
 
     if m2p != 1:
         crdata[:, -1] *= m2p
 
     crdataf = (
-        str(nelem) + "\n" + "\n".join([" ".join(list(map(str, l))) for l in crdata])
+            str(nelem) + "\n" + "\n".join([" ".join(list(map(str, l))) for l in crdata])
     )
 
     with open(data_op_file, "w") as ndf:
@@ -324,7 +325,7 @@ def mesh_geometry(mesh_file):
     ncol = int(msh[0][3])
     nlin = int(msh[0][4])
 
-    nodes = np.array(msh[4 : (nnodes + 4)])
+    nodes = np.array(msh[4: (nnodes + 4)])
     xn = np.array(
         list(chunks([nodes[i][1] for i in range(nnodes)], ncol + 1))
     ).flatten()
@@ -410,16 +411,16 @@ def neighbor(abcd, h):
 
 class Crtomo:
     def __init__(
-        self,
-        working_dir="\\",  # Some defaults folders
-        data_dir="\\",
-        mesh_dir="\\",
-        iso_dir="\\",
-        ref_dir="\\",
-        start_dir="\\",
-        results_dir="\\",
-        crtomo_exe="crtomo.exe",
-        mesh_exe="mesh.exe",
+            self,
+            working_dir="\\",  # Some defaults folders
+            data_dir="\\",
+            mesh_dir="\\",
+            iso_dir="\\",
+            ref_dir="\\",
+            start_dir="\\",
+            results_dir="\\",
+            crtomo_exe="crtomo.exe",
+            mesh_exe="mesh.exe",
     ):
 
         self.working_dir = working_dir
@@ -640,52 +641,52 @@ class Crtomo:
         print("mesh generated")
 
     def write_config(
-        self,
-        erase=0,
-        mesh_file="Mesh.dat",
-        elec_file="elec.dat",
-        data_file="dataset.dat",
-        result_folder="results",
-        difference_inversion=0,
-        fdi1=None,
-        reference_model_file=None,
-        fdi3=None,
-        reference_model=0,
-        data_difference=0,
-        stochastic_inversion=0,
-        prior_si=0,
-        reference_weights_file=None,
-        fincr=1,
-        grid_type=1,
-        arbitrary=5,
-        vario=1,
-        smoothing_x=1,
-        smoothing_y=1,
-        iso_file1="iso.dat",
-        iso_file2="iso.dat",
-        variogram_regularization=0,
-        iterations=20,
-        rms=1.0000,
-        dc=1,
-        robust=1,
-        check_polarity=1,
-        final_phase_improvement=0,
-        individual_error=0,
-        error_level=1,
-        min_abs_error=0.00015,
-        phase_error=0.15,
-        hom_bkg_res=0,
-        bkg_mag=160,
-        bkg_pha=0,
-        resolution_mtx=0,
-        mgs=0,
-        beta=0.0001,
-        starting_model=0,
-        starting_model_file="startmodel.dat",
-        fwd_only=0,
-        sink_node=0,
-        node_bumber=3348,
-        next_dset=0,
+            self,
+            erase=0,
+            mesh_file="Mesh.dat",
+            elec_file="elec.dat",
+            data_file="dataset.dat",
+            result_folder="results",
+            difference_inversion=0,
+            fdi1=None,
+            reference_model_file=None,
+            fdi3=None,
+            reference_model=0,
+            data_difference=0,
+            stochastic_inversion=0,
+            prior_si=0,
+            reference_weights_file=None,
+            fincr=1,
+            grid_type=1,
+            arbitrary=5,
+            vario=1,
+            smoothing_x=1,
+            smoothing_y=1,
+            iso_file1="iso.dat",
+            iso_file2="iso.dat",
+            variogram_regularization=0,
+            iterations=20,
+            rms=1.0000,
+            dc=1,
+            robust=1,
+            check_polarity=1,
+            final_phase_improvement=0,
+            individual_error=0,
+            error_level=1,
+            min_abs_error=0.00015,
+            phase_error=0.15,
+            hom_bkg_res=0,
+            bkg_mag=160,
+            bkg_pha=0,
+            resolution_mtx=0,
+            mgs=0,
+            beta=0.0001,
+            starting_model=0,
+            starting_model_file="startmodel.dat",
+            fwd_only=0,
+            sink_node=0,
+            node_bumber=3348,
+            next_dset=0,
     ):
         """
         Writes the crtomo configuration file crtritime.cfg.
@@ -743,7 +744,7 @@ class Crtomo:
             os.makedirs(result_folder)  # Creates it
         else:
             if (
-                erase
+                    erase
             ):  # If it exists and erase option enabled, empties its content first!
                 deldir(result_folder)
             else:
@@ -902,9 +903,9 @@ class Crtomo:
                 ncol, nlin, nelem, blocks, centerxy = mesh_geometry(self.mf)
                 isod = [[1, 1 * ratio] for i in range(nelem)]
                 isodat = (
-                    str(nelem)
-                    + "\n"
-                    + "\n".join([" ".join(list(map(str, l))) for l in isod])
+                        str(nelem)
+                        + "\n"
+                        + "\n".join([" ".join(list(map(str, l))) for l in isod])
                 )
                 with open(self.iso_f1, "w") as md:
                     md.write(isodat)

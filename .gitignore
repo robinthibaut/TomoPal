@@ -2,6 +2,7 @@
 /tomopal/vtk/
 /tomopal/misc/*
 /tomopal/data/
+/tomopal/scripts/
 /tomopal/crtomopy/data/test/
 
 ### Python template

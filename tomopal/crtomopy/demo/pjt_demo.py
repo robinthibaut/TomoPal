@@ -11,9 +11,8 @@ from tomopal.crtomopy.crtomo.crc import (
     mesh_geometry,
     mtophase,
 )
-
-from ...geoview.diavatly import model_map  # To plot results
 from ..parent import inventory
+from ...geoview.diavatly import model_map  # To plot results
 
 # %% Directories
 

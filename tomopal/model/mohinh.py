@@ -29,13 +29,13 @@ def find_norm(l):  # Convert values to linear space to facilitate visualization!
 
 class ModelMaker(object):
     def __init__(
-        self,
-        model_name=None,
-        centerxy=np.array([]),
-        blocks=np.array([]),
-        values=np.array([]),
-        values_log=0,
-        bck=1,
+            self,
+            model_name=None,
+            centerxy=np.array([]),
+            blocks=np.array([]),
+            values=np.array([]),
+            values_log=0,
+            bck=1,
     ):
         """
         :param model_name: path to the file to be created containing the output
@@ -181,7 +181,7 @@ class ModelMaker(object):
             cb1.set_ticklabels(ticks2)  # Setting the proper labels
 
         if (
-            self.blocks.any()
+                self.blocks.any()
         ):  # If blocks are provided. I should change this as the direction this code is going is
             # to provide blocks by default
 
@@ -281,7 +281,7 @@ class ModelMaker(object):
         cols = colors.ListedColormap([self.cmap(v) for v in ccb])
 
         if (
-            len(vals_cb) > 1
+                len(vals_cb) > 1
         ):  # Creating a colormap fn to automatically rescale the colors of selected zones
 
             try:
@@ -306,7 +306,7 @@ class ModelMaker(object):
             pass
 
         if (
-            not self.blocks.any()
+                not self.blocks.any()
         ):  # If no blocks, simply coloring the points accordingly
             for i in range(len(self.index)):
                 self.fc[self.index[i][1]] = self.cmap(lsps[i])

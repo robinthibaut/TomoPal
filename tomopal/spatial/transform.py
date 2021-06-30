@@ -45,12 +45,12 @@ def order_vertices(vertices):
 
 class Transformation:
     def __init__(
-        self,
-        blocks_: str = None,
-        bounds: list = None,
-        dem: str = None,
-        origin: list = None,
-        name: str = None,
+            self,
+            blocks_: str = None,
+            bounds: list = None,
+            dem: str = None,
+            origin: list = None,
+            name: str = None,
     ):
         """
         :param blocks_: Results file containing block coordinates and associated values
