@@ -1,11 +1,5 @@
-tomopal.post package
+post-processing package
 ====================
-
-Submodules
-----------
-
-tomopal.post.analysis module
-----------------------------
 
 .. automodule:: tomopal.post.analysis
    :members:

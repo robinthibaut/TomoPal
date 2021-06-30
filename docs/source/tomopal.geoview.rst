@@ -1,10 +1,8 @@
-tomopal.geoview package
+Geoview
 =======================
 
-Submodules
-----------
 
-tomopal.geoview.diavatly module
+Diavatly module
 -------------------------------
 
 .. automodule:: tomopal.geoview.diavatly
@@ -12,7 +10,7 @@ tomopal.geoview.diavatly module
    :undoc-members:
    :show-inheritance:
 
-tomopal.geoview.iotomo module
+iotomo module
 -----------------------------
 
 .. automodule:: tomopal.geoview.iotomo

@@ -1,11 +1,6 @@
-tomopal.crtomopy.crtomo package
+crtomopy package
 ===============================
 
-Submodules
-----------
-
-tomopal.crtomopy.crtomo.crc module
-----------------------------------
 
 .. automodule:: tomopal.crtomopy.crtomo.crc
    :members:

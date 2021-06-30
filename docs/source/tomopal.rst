@@ -1,8 +1,5 @@
-tomopal package
+TomoPal
 ===============
-
-Subpackages
------------
 
 .. toctree::
    :maxdepth: 4

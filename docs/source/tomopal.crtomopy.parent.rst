@@ -1,10 +1,7 @@
-tomopal.crtomopy.parent package
-===============================
+parent
+========
 
-Submodules
-----------
-
-tomopal.crtomopy.parent.inventory module
+Inventory
 ----------------------------------------
 
 .. automodule:: tomopal.crtomopy.parent.inventory

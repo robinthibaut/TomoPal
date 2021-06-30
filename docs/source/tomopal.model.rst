@@ -1,10 +1,7 @@
-tomopal.model package
+Model package
 =====================
 
-Submodules
-----------
-
-tomopal.model.mohinh module
+mohinh module
 ---------------------------
 
 .. automodule:: tomopal.model.mohinh

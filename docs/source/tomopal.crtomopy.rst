@@ -1,8 +1,6 @@
-tomopal.crtomopy package
-========================
+crtomopy
+==========
 
-Subpackages
------------
 
 .. toctree::
    :maxdepth: 4

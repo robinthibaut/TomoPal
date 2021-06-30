@@ -1,10 +1,8 @@
-tomopal.spatial package
+Spatial package
 =======================
 
-Submodules
-----------
 
-tomopal.spatial.transform module
+transform module
 --------------------------------
 
 .. automodule:: tomopal.spatial.transform
