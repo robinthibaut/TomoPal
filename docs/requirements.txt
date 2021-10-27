@@ -1,7 +1,7 @@
 tomopal
 sphinx==3.4.3
 sphinx_rtd_theme==0.5.1
-readthedocs-sphinx-search==0.1.0
+readthedocs-sphinx-search==0.1.1
 nbsphinx
 IPython
 numpy~=1.20.2
