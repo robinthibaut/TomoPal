@@ -6,7 +6,7 @@ nbsphinx
 IPython
 numpy~=1.20.2
 rasterio~=1.2.3
-vtk~=9.0.1
+vtk~=9.1.0
 geographiclib~=1.50
 scipy~=1.6.3
 pandas~=1.2.4
