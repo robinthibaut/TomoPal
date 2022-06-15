@@ -938,6 +938,10 @@ class Crtomo:
             except Exception as e:
                 pass
 
-        sp.Popen(self.crtomo_exe, cwd=os.path.dirname(self.crtomo_exe), shell=True, stdout=sp.PIPE).wait()
+        sp.call(self.crtomo_exe)
+
+        # sp.Popen(self.crtomo_exe, cwd=os.path.dirname(self.crtomo_exe), shell=True, stdout=sp.PIPE).wait()
+        # when it's over, make sure to kill the process
+        # sp.Popen("killall -9 crtomo", shell=True, stdout=sp.PIPE).wait()
 
         print("process over")
