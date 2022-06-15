@@ -167,19 +167,25 @@ def mtophase(ncycles=0, pulse_l=0, tmin=0, tmax=0, mpath=None):
 def crtomo_file_shortener(f1, f2):
     """CRTOMO cannot deal with long folder path, especially not with spaces within it..."""
     fs = f2
+    # Remove file name from path
+    exefolder = f1.replace(jp("\\", path_leaf(f1)), "")
 
     if f2:  # If file is different than None
-
-        # Remove file name from path
-        exefolder = f1.replace(jp("\\", path_leaf(f1)), "")
-
         if exefolder in f2:
             # CRtomo can not deal with long paths
-            fs = ".\\" + f2.replace(exefolder, "")
+            fs = f".\\" + f2.replace(exefolder, '')
+
         else:
             fs = f2
             if len(f2) == len(path_leaf(f2)):
                 fs = ".\\" + f2
+
+        # replace \\ with \
+        fs = fs.replace("\\\\", "\\")
+    # else:
+    #     fs = ".\\"
+
+
     return fs
 
 
@@ -317,7 +323,7 @@ def mesh_geometry(mesh_file):
 
     with open(mesh_file, "r") as fr:
         msh = np.array(
-            [list(map(float, l.replace("T", "").split())) for l in fr.readlines()]
+            [list(map(float, l.replace("T", "").split())) for l in fr.readlines()], dtype=object
         )
 
     nnodes = int(msh[0][0])
@@ -819,7 +825,7 @@ class Crtomo:
 {35} ! Compute resolution matrix
 {36} ! MGS?
 {37} !beta
-{38} 'starting model?
+{38} !starting model?
 {39}
 {40} ! Forward modelling only
 {41} ! Sink node activated
@@ -888,7 +894,7 @@ class Crtomo:
             # If no iso file exists, it automatically creates one
             if not os.path.exists(self.iso_f1):
                 ratio = 1
-                ncol, nlin, nelem, blocks, centerxy = mesh_geometry(self.mf)
+                ncol, nlin, nelem, blocks, centerxy, nodes = mesh_geometry(self.mf)
                 isod = [[1, 1 * ratio] for i in range(nelem)]
                 isodat = (
                         str(nelem)
@@ -930,8 +936,8 @@ class Crtomo:
                 fname = path_leaf(f)
                 copyfile(f, jp(pfn, fname))
             except Exception as e:
-                print(e)
+                pass
 
-        sp.call([self.crtomo_exe])  # Runs the exe
+        sp.Popen(self.crtomo_exe, cwd=os.path.dirname(self.crtomo_exe), shell=True, stdout=sp.PIPE).wait()
 
         print("process over")

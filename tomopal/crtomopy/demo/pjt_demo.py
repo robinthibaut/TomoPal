@@ -11,8 +11,8 @@ from tomopal.crtomopy.crtomo.crc import (
     mesh_geometry,
     mtophase,
 )
-from ..parent import inventory
-from ...geoview.diavatly import model_map  # To plot results
+from tomopal.crtomopy import inventory
+# from tomopal.geoview.diavatly import model_map  # To plot results
 
 # %% Directories
 
@@ -74,14 +74,14 @@ elev = datread(ef)  # Use built-in function to extract data (optional)
 # the electrode spacing (required)
 # the elevation data (optional)
 
-myinv.meshmaker(abmn=dat[:, [0, 1, 2, 3]], electrode_spacing=es, elevation_data=elev)
+# myinv.meshmaker(abmn=dat[:, [0, 1, 2, 3]], electrode_spacing=es, elevation_data=elev)
 # If you already have generated a mesh, comment the line above and instead
 # load the previously generated Mesh.dat file as described below.
 
 # %% Read the mesh data (number of cells, blocks coordinates, x-y coordinates of the center of the blocks) from Mesh.dat
 
 mshf = jp(mesh_dir, "Mesh.dat")  # Path to the generated 'Mesh.dat' file.
-ncol, nlin, nelem, blocks, centerxy = mesh_geometry(mshf)  # Extract mesh properties
+ncol, nlin, nelem, blocks, centerxy, nodes = mesh_geometry(mshf)  # Extract mesh properties
 
 # %% Build configuration file
 
@@ -176,7 +176,7 @@ iso_file1 = jp(iso_dir, "iso.dat")
 # #
 # with open(iso_file1, 'w') as rw:
 #     rw.write(str(nelem)+'\n')
-#     [rw.write('{} 1'.format(str(i))+'\n') for i in isom.final_results]
+#     [rw.write('{} 1'.format(str(i))+'\n') for i in range(nelem)]
 #     rw.close()
 
 # %% Generate configuration file
