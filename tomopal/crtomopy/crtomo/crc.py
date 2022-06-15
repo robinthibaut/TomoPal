@@ -31,7 +31,7 @@ def datread(file=None, start=0, end=None):
     with open(file, "r") as fr:
         lines = np.copy(fr.readlines())[start:end]
         try:
-            op = np.array([list(map(float, line.split())) for line in lines])
+            op = np.array([list(map(float, line.split())) for line in lines], dtype=object)
         except ValueError:
             op = [line.split() for line in lines]
     return op
@@ -418,7 +418,6 @@ class Crtomo:
             iso_dir="\\",
             ref_dir="\\",
             start_dir="\\",
-            results_dir="\\",
             crtomo_exe="crtomo.exe",
             mesh_exe="mesh.exe",
     ):
@@ -434,14 +433,6 @@ class Crtomo:
         dirmaker(iso_dir)
         dirmaker(ref_dir)
         dirmaker(start_dir)
-
-        # self.results_dir = results_dir
-        #
-        # try:
-        #     if not os.path.exists(results_dir):
-        #         os.mkdir(results_dir)
-        # except:
-        #     pass
 
         self.crtomo_exe = crtomo_exe
 
@@ -483,6 +474,9 @@ class Crtomo:
         elev = elevation_data
         es = electrode_spacing  # Electrode spacing
 
+        if elev is None:
+            elev = np.array([[0, 0], [es * len(dat), 0]])
+
         #  Electrodes x-position
 
         extent = int(max(dat.flatten()))  # Maximum electrode x-position
@@ -502,7 +496,7 @@ class Crtomo:
         #  Electrodes elevation
 
         fnel = f1d(
-            elev[:, 0], elev[:, 1], kind="cubic", fill_value="extrapolate"
+            elev[:, 0], elev[:, 1], kind="linear", fill_value="extrapolate"
         )  # Interpolation function for the elevation to fill the gaps.
         elint = list(map(float, list(map(fnel, epx))))
 
@@ -517,12 +511,6 @@ class Crtomo:
             elev.close()
 
         ms_exe_f = jp(mesh_dir, path_leaf(mesh_exe_name))
-
-        # if not os.path.exists(self.mesh_exe):  # Check if the mesh exe files can be found.
-        #     if os.path.exists(jp(self.working_dir, path_leaf(mesh_exe_name))):
-        #         copyfile(jp(self.working_dir, path_leaf(mesh_exe_name)), ms_exe_f)
-        #     else:
-        #         print('Can not find mesh executable')
 
         # Check if the mesh exe files can be found.
         if os.path.exists(self.mesh_exe):

@@ -1,3 +1,1 @@
-__all__ = ["inventory"]
-
-from . import inventory
+from .inventory import *
