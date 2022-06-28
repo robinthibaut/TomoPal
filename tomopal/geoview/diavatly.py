@@ -441,8 +441,11 @@ def model_map(
     plt.xticks(np.arange(round(xs.min()), round(xs.max()), step=stepx))
     plt.yticks(np.arange(round(ys.min()), round(ys.max()), step=stepy))
 
-    plt.ylabel('Y (m)', fontsize=6)
-    ax.set_title('X (m)', fontsize=6)
+    # Set x/y labels
+    plt.ylabel("Y (m)", fontsize=fontsize)
+    # put x label on top
+    plt.xlabel("X (m)", fontsize=fontsize)
+    ax.xaxis.set_label_position('top')
 
     # Set color bar and others
     if res.any():
@@ -468,9 +471,9 @@ def model_map(
         cb1.ax.tick_params(labelsize=labelsize)
         plt.setp(ax.spines.values(), linewidth=0.5)
         plt.setp(axcb.spines.values(), linewidth=0.1)
-        axcb.set_title(
-            "Resistivity ($\Omega$.m)", fontsize=labelsize, fontweight="bold", color="black"
-        )
+        cblabel = "Resistivity ($\Omega$.m)"
+        # set the label of the colorbar under the colorbar
+        cb1.set_label(cblabel, fontsize=labelsize)
 
         # Contour lines
         if contours_path:
