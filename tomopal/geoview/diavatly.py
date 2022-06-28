@@ -231,6 +231,12 @@ def model_map(
 
     Given a mesh geometry and values, produces the colored mesh with the proper color scale
 
+    :param extension:
+    :param labelsize:
+    :param fontsize:
+    :param binned:
+    :param cmap_name:
+    :param ndec:
     :param stepy: float: Step size to discretize the y-axis
     :param stepx: float: Step size to discretize the x-axis
     :param dpi: int: fig dpi
@@ -435,8 +441,8 @@ def model_map(
     plt.xticks(np.arange(round(xs.min()), round(xs.max()), step=stepx))
     plt.yticks(np.arange(round(ys.min()), round(ys.max()), step=stepy))
 
-    # plt.ylabel('Y', fontsize=6)
-    # ax.set_title('X', fontsize=6)
+    plt.ylabel('Y (m)', fontsize=6)
+    ax.set_title('X (m)', fontsize=6)
 
     # Set color bar and others
     if res.any():
@@ -462,6 +468,9 @@ def model_map(
         cb1.ax.tick_params(labelsize=labelsize)
         plt.setp(ax.spines.values(), linewidth=0.5)
         plt.setp(axcb.spines.values(), linewidth=0.1)
+        axcb.set_title(
+            "Resistivity ($\Omega$.m)", fontsize=labelsize, fontweight="bold", color="black"
+        )
 
         # Contour lines
         if contours_path:
